@@ -6,21 +6,21 @@ KuKey.Models . {
 
 <Table("key")>
 KeyModel : BaseModel & $(me) {
-    <Column("name"), get, set>
+    <Column("name"); get; set>
     Name! str : ""
-    <Column("account"), get, set>
+    <Column("account"); get; set>
     Account! str : ""
-    <Column("password"), get, set>
+    <Column("password"); get; set>
     Password! str : ""
-    <Column("url"), get, set>
+    <Column("url"); get; set>
     URL! str : ""
-    <Column("note"), get, set>
+    <Column("note"); get; set>
     Note! str : ""
-    <Column("level"), get, set>
+    <Column("level"); get; set>
     Level! int : 0
-    <Column("time"), get, set>
+    <Column("time"); get; set>
     Time! int : 0
-    <Column("hash"), get, set>
+    <Column("hash"); get; set>
     Hash! str : ""
 
     . encrypt : (->v BaseModel) {

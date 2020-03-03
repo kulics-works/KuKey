@@ -1,4 +1,6 @@
 KuKey . {
+    System
+    
     KuKey.Models
     KuKey.Databases
     KuKey.Services
@@ -20,29 +22,21 @@ KuKey : (databasePath str, masterPassword str->$) {     # 使用默认存储服�
         _EncryptService.MasterPassword = v
     }
 
-    [Create T] : (item T ->> r bool) {
-        <<- _DataStoreService.AddItemAsync(item)
+    [Get (T BaseModel)] : (match (T->bool) ->> @ r T) {
+        <<- _DataStoreService.GetAsync(match)
     }
 
-    [Update T] : (item T ->> r bool) {
-        <<- _DataStoreService.UpdateItemAsync(item)
+    [Post (T BaseModel)] : (item T ->> r bool) {
+        <<- _DataStoreService.PostAsync(item)
     }
 
-    [Update T] : (match (T->bool), item T ->> r bool) {
-        <<- _DataStoreService.PutItemAsync(match, item)
+    [Put (T BaseModel)] : (match (T->bool), item T ->> r bool) {
+        <<- _DataStoreService.PutAsync(match, item)
     }
 
-    [Retrieve T] : (match (T->bool) ->> r T) {
-        <<- _DataStoreService.GetItemAsync(match)
-    }
-
-    [Retrieve T] : (forceRefresh bool ->> @ r T) {
-        <<- _DataStoreService.GetItemsAsync()
-    }
-
-    [Delete T] : (match (T->bool) ->> r bool) {
-        <<- _DataStoreService.DeleteItemAsync(item)
+    [Delete (T BaseModel)] : (match (T->bool) ->> r bool) {
+        <<- _DataStoreService.DeleteAsync(item)
     }
 }
 
-#:SqliteContext
+#:DefaultStoreService

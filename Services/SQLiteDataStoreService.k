@@ -10,52 +10,41 @@ KuKey.Services . {
 # SQLite 服务
 SQLiteDataStoreService : (path str->$) {
     _Context = SQLiteContext(path)
-} & $ IDataStore(me) {
+} & $ IDataStoreService(me) {
     _Context SQLiteContext
 
-    [CreateAsync (T BaseModel)] : (item T ->> r bool) {
+    [GetAsync (T BaseModel)] : (match (T->bool) ->> @ r T) {
+        Set : _Context.[Set T]()
+        r : Set.Where{i->match(i)}.ToList()
+        <<- Task.FromResult(r)
+    }
+
+    [PostAsync (T BaseModel)] : (item T ->> r bool) {
         Set : _Context.[Set T]()
         Set.Add(item)
         << _Context.SaveChangesAsync()
         <<- Task.FromResult(true)
     }
 
-    [UpdateAsync (T BaseModel)] : (item T ->> r bool) {
-        Set : _Context.[Set T]()
-        Set.Update(item)
-        << _Context.SaveChangesAsync()
-        <<- Task.FromResult(true)
-    }
-
-    [UpdateAsync (T BaseModel)] : (match (T->bool), item T ->> r bool) {
+    [PutAsync (T BaseModel)] : (match (T->bool), item T ->> r bool) {
         Set : _Context.[Set T]()
         ? Set.Where{i->match(i)}.Count() > 0 {
-            << me.UpdateItemAsync(item)
+            Set.Update(item)
+            << _Context.SaveChangesAsync()
         } _ {
-            << me.AddItemAsync(item)
+            << PostAsync(item)
         }
-        DependencyService.[Get [MemoryStore T]]().reload()
         <<- Task.FromResult(true)
-    }
-
-    [RetrieveAsync (T BaseModel)] : (match (T->bool) ->> r T) {
-        Set : _Context.[Set T]()
-        r : Set.FirstOrDefault(match)
-        <<- Task.FromResult(r)
-    }
-
-    [RetrieveAsync (T BaseModel)] : (forceRefresh bool ->> @ r T) {
-        Set : _Context.[Set T]()
-        r : (@ it : Set.. -> select it).ToList()
-        <<- Task.FromResult(r)
     }
 
     [DeleteAsync (T BaseModel)] : (match (T->bool) ->> r bool) {
         Set : _Context.[Set T]()
-        item : Set.FirstOrDefault(match)
-        Set.Remove(item)
-        << _Context.SaveChangesAsync()
+        r : Set.Where{i->match(i)}.ToList()
+        ? r.Count > 0 {
+            Set.RemoveRange(r)
+            << _Context.SaveChangesAsync()
+        }
         <<- Task.FromResult(true)
     }
 }
-#:SqliteContext
+#:SQLiteContext

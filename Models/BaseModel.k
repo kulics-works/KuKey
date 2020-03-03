@@ -7,7 +7,7 @@ KuKey.Models . {
 }
 
 BaseModel : $ (me) {
-    <Key, Column("id"), DatabaseGenerated(DatabaseGeneratedOption.Identity), get, set>
+    <Key; Column("id"); DatabaseGenerated(DatabaseGeneratedOption.Identity); get; set>
     Id! ?str
 
     encrypt : (->v BaseModel) {

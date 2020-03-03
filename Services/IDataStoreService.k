@@ -1,11 +1,12 @@
 KuKey.Services . {
+    System
+    
+    KuKey.Models
 }
 
 IDataStoreService : $$ {
-    [CreateAsync T] (item T ->> r bool)
-    [UpdateAsync T] (item T ->> r bool)
-    [UpdateAsync T] (match (T->bool), item T ->> r bool)
-    [RetrieveAsync T] (match (T->bool) ->> r T)
-    [RetrieveAsync T] (forceRefresh bool ->> @ r T)
-    [DeleteAsync T] (match (T->bool) ->> r bool)
+    [GetAsync (T BaseModel)] (match (T->bool) ->> @ r T)
+    [PostAsync (T BaseModel)] (item T ->> r bool)
+    [PutAsync (T BaseModel)] (match (T->bool), item T ->> r bool)
+    [DeleteAsync (T BaseModel)] (match (T->bool) ->> r bool)
 }

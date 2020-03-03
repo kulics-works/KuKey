@@ -3,7 +3,7 @@ KuKey.Services . {
 }
 # 加密服务
 EncryptService : $ {
-    <get, set>
+    <get; set>
     MasterPassword! str     # 主密码
     # 加密
     Encrypt : (v str -> v str) {
