@@ -35,7 +35,7 @@ KuKey : (databasePath str, masterPassword str->$) {     # 使用默认存储服�
     }
 
     [Delete (T BaseModel)] : (match (T->bool) ->> r bool) {
-        <<- _DataStoreService.DeleteAsync(item)
+        <<- _DataStoreService.DeleteAsync(match)
     }
 }
 

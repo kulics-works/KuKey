@@ -7,58 +7,55 @@ KuKey.Services . {
     KuKey.Models
     KuKey.Databases
 }
-
-DefaultStoreService : $ {
+# 默认存储服务
+DefaultStoreService : (path str->$) {
+    _SQLService = SQLiteDataStoreService(path)
+} & $ {
     <get;set>
-    items! []T
-
-    _SQLService! SQLiteDataStoreService
-
-    check_items : (->>) {
-        ? _items == nil {
-            _items = []T{}
-            ? DependencyService.[Get [IDataStore T]]() >< nil {
-                @ v : << DependencyService.[Get [IDataStore T]]().GetItemsAsync(true).. {
-                    _items.add(Models_static.decrypt_model(v))
-                }
+    _Dataset! : [Type]any{} # 内存数据集，使用类型作为键，值为类型列表
+    _SQLService SQLiteDataStoreService # 使用SQLite数据库服务作持久化存储
+    # 检查内存中是否有数据集，如果无则去数据库中查找
+    [CheckDataset (T BaseModel)] : (->>) {
+        ? _Dataset[typeof(T)] == nil {
+            dataset : _Dataset[typeof(T)] []T!
+            dataset = []T{}
+            @ v : << _SQLService.[GetAsync T]{i->true}.. {
+                dataset.add(Models_static.decrypt_model(v))
             }
         }
     }
-
-    reload : (->>) {
-        _items = []T{}
-        ? DependencyService.[Get [IDataStore T]]() >< nil {
-            @ v : << DependencyService.[Get [IDataStore T]]().GetItemsAsync(true).. {
-                _items.add(Models_static.decrypt_model(v))
-            }
-        }
+    # 获取某个数据集
+    [GetDataset (T BaseModel)] : (->r []T) {
+        <- _Dataset[typeof(T)] []T! 
     }
-} & $ IDataStoreService {
+} & $ IDataStoreService {   # 实现数据服务接口
     [GetAsync (T BaseModel)] : (match (T->bool) ->> @ r T) {
-        << check_items()
-        r : items.Where{i->match(i)}.ToList()
+        << [CheckDataset T]()
+        r : [GetDataset T]().Where{i->match(i)}.ToList()
         <<- Task.FromResult(r)
     }
 
     [PostAsync (T BaseModel)] : (item T ->> r bool) {
-        items.add(item)
-        _SQLService.PostAsync(Models_static.encrypt_model(item))
+        [GetDataset T]().add(item)
+        << _SQLService.[PostAsync T](Models_static.encrypt_model(item))
         <<- Task.FromResult(true)
     }
 
     [PutAsync (T BaseModel)] : (match (T->bool), item T ->> r bool) {
-        ? items.exists(match) {
-            items.update(match, item)
+        dataset : [GetDataset T]()
+        ? dataset.exists(match) {
+            dataset.update(match, item)
         } _ {
-            items.add(item)
+            dataset.add(item)
         }
-        _SQLService.PutAsync(Models_static.encrypt_model(item))
+        << _SQLService.[PutAsync T](match, Models_static.encrypt_model(item))
         <<- Task.FromResult(true)
     }
 
     [DeleteAsync (T BaseModel)] : (match (T->bool) ->> r bool) {
-        items.remove_all(match)
-        _SQLService.DeleteAsync(match)
+        [GetDataset T]().remove_all(match)
+        << _SQLService.[DeleteAsync T](match)
         <<- Task.FromResult(true)
     }
 }
+#:SQLiteDataStoreService
