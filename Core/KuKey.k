@@ -1,26 +1,32 @@
-KuKey . {
+Kulics.KuKey.Core . {
     System
 
     Newtonsoft.Json
     
-    KuKey.Models
-    KuKey.Databases
-    KuKey.Services
+    Kulics.KuKey.Models
+    Kulics.KuKey.Databases
+    Kulics.KuKey.Services
 }
 
 # 主程序
 KuKey : (databasePath str, masterPassword str->$) {     # 使用默认服务
     _DataStoreService = DefaultDataStoreService(databasePath)
     _EncryptService = DefaultEncryptService(masterPassword)
+    _Init()
 } & (dataSrv IDataStoreService, encryptSrv IEncryptService->$) {   # 使用自定义服务
     _DataStoreService = dataSrv
     _EncryptService = encryptSrv
+    _Init()
 } & $ {
     _DataStoreService IDataStoreService     # 存储服务
     _EncryptService IEncryptService         # 加密服务
     # 解密后的数据集，使用类型作为键，值为类型列表
     <get;set>
     _Dataset! : [Type]any{}
+
+    _Init : (->) {
+        [Get KeyModel]{i->true}
+    }
 } & $ IKuKey { # 实现接口
     UpdateEncryptService : (srv IEncryptService->) {
         _EncryptService = srv

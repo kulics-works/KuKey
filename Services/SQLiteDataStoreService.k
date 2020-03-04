@@ -1,11 +1,11 @@
-KuKey.Services . {
+Kulics.KuKey.Services . {
     System
     System.Collections.Generic
     System.Linq
     System.Threading.Tasks
 
-    KuKey.Models
-    KuKey.Databases
+    Kulics.KuKey.Models
+    Kulics.KuKey.Databases
 }
 # SQLite 数据存储服务
 SQLiteDataStoreService : (path str->$) {

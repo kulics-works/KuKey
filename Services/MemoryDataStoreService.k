@@ -1,11 +1,11 @@
-KuKey.Services . {
+Kulics.KuKey.Services . {
     System
     System.Collections.Generic
     System.Linq
     System.Threading.Tasks
 
-    KuKey.Models
-    KuKey.Databases
+    Kulics.KuKey.Models
+    Kulics.KuKey.Databases
 }
 # 内存 数据存储服务
 MemoryDataStoreService : (->$) {
@@ -16,6 +16,9 @@ MemoryDataStoreService : (->$) {
 
     # 获取某个数据集
     [_GetDataset (T BaseModel)] : (->r []T) {
+        ? _Dataset[typeof(T)] == nil {
+            _Dataset[typeof(T)] = []T{}
+        }
         <- _Dataset[typeof(T)] []T! 
     }
 } & $ IDataStoreService {

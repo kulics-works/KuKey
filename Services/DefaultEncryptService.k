@@ -1,5 +1,5 @@
-KuKey.Services . {
-    KuKey.Encryptor
+Kulics.KuKey.Services . {
+    Kulics.KuKey.Encryptor
 }
 # 加密服务
 DefaultEncryptService : (password str->$) {

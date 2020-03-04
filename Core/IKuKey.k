@@ -1,8 +1,8 @@
-KuKey . {
+Kulics.KuKey.Core . {
     System
     
-    KuKey.Models
-    KuKey.Services
+    Kulics.KuKey.Models
+    Kulics.KuKey.Services
 }
 
 # 核心接口

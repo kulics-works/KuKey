@@ -1,4 +1,4 @@
-KuKey.Encryptor . {
+Kulics.KuKey.Encryptor . {
     System
     System.Security.Cryptography
     System.Text

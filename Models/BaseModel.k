@@ -1,9 +1,9 @@
-KuKey.Models . {
+Kulics.KuKey.Models . {
     System
     System.ComponentModel.DataAnnotations
     System.ComponentModel.DataAnnotations.Schema
 
-    KuKey.Services
+    Kulics.KuKey.Services
 }
 
 BaseModel : $ (me) {

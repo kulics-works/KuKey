@@ -1,7 +1,7 @@
-KuKey.Services . {
+Kulics.KuKey.Services . {
     System
     
-    KuKey.Models
+    Kulics.KuKey.Models
 }
 
 IDataStoreService : $$ {

@@ -1,4 +1,4 @@
-KuKey.Services . {
+Kulics.KuKey.Services . {
     System
 }
 
