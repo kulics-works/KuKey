@@ -13,8 +13,8 @@ SQLiteDataStoreService : (path str->$) {
 } & $ IDataStoreService {
     _Context SQLiteContext
 
-    [GetAsync (T BaseModel)] : (match (T->bool) ->> @ r T) {
-        <- _Context.[Set T]().Where{i->match(i)}.ToList()
+    [GetAsync (T BaseModel)] : (match (T->bool) ->> r []T) {
+        <- _Context.[Set T]().Where{i->match(i)}.to_list()
     }
 
     [PostAsync (T BaseModel)] : (item T ->>) {

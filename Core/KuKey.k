@@ -34,9 +34,9 @@ KuKey : (databasePath str, masterPassword str->$) {     # 使用默认服务
         _Dataset = [Type]any{}
     }
 
-    [Get (T BaseModel)] : (match (T->bool) ->> @ r T) {
-        ? _Dataset[typeof(T)] == nil {
-            _Dataset[typeof(T)] = []T{}
+    [Get (T BaseModel)] : (match (T->bool) ->> r []T) {
+        ? ~_Dataset.has_key(typeof(T)) {
+            _Dataset.add(typeof(T), []T{})
             @ v : << _DataStoreService.[GetAsync T]{i->true}.. {
                 (_Dataset[typeof(T)] []T!).add(v.Decrypt(_EncryptService) T!)
             }

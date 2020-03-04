@@ -15,7 +15,7 @@ DefaultDataStoreService : MemoryDataStoreService & (path str->$) {
     # 数据库存储服务
     _SQLService IDataStoreService
     
-    . [GetAsync T] : (match (T->bool) ->> @ r T) {
+    . [GetAsync T] : (match (T->bool) ->> r []T) {
         # 检查内存中是否有数据集，如果无则去数据库中查找
         ? _Dataset[typeof(T)] == nil {
             dataset : _Dataset[typeof(T)] []T!

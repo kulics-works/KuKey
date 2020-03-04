@@ -16,14 +16,14 @@ MemoryDataStoreService : (->$) {
 
     # 获取某个数据集
     [_GetDataset (T BaseModel)] : (->r []T) {
-        ? _Dataset[typeof(T)] == nil {
-            _Dataset[typeof(T)] = []T{}
+        ? ~_Dataset.has_key(typeof(T)) {
+            _Dataset.add(typeof(T), []T{})
         }
         <- _Dataset[typeof(T)] []T! 
     }
 } & $ IDataStoreService {
-    [GetAsync (T BaseModel)] : (match (T->bool) ->> @ r T) {
-        <- [_GetDataset T]().Where{i->match(i)}.ToList()
+    [GetAsync (T BaseModel)] : (match (T->bool) ->> r []T) {
+        <- [_GetDataset T]().Where{i->match(i)}.to_list()
     }
 
     [PostAsync (T BaseModel)] : (item T ->>) {
