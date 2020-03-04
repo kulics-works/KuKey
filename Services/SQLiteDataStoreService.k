@@ -7,26 +7,22 @@ KuKey.Services . {
     KuKey.Models
     KuKey.Databases
 }
-# SQLite 服务
+# SQLite 数据存储服务
 SQLiteDataStoreService : (path str->$) {
     _Context = SQLiteContext(path)
 } & $ IDataStoreService(me) {
     _Context SQLiteContext
 
     [GetAsync (T BaseModel)] : (match (T->bool) ->> @ r T) {
-        Set : _Context.[Set T]()
-        r : Set.Where{i->match(i)}.ToList()
-        <<- Task.FromResult(r)
+        <- _Context.[Set T]().Where{i->match(i)}.ToList()
     }
 
-    [PostAsync (T BaseModel)] : (item T ->> r bool) {
-        Set : _Context.[Set T]()
-        Set.Add(item)
+    [PostAsync (T BaseModel)] : (item T ->>) {
+        _Context.[Set T]().Add(item)
         << _Context.SaveChangesAsync()
-        <<- Task.FromResult(true)
     }
 
-    [PutAsync (T BaseModel)] : (match (T->bool), item T ->> r bool) {
+    [PutAsync (T BaseModel)] : (match (T->bool), item T ->>) {
         Set : _Context.[Set T]()
         ? Set.Where{i->match(i)}.Count() > 0 {
             Set.Update(item)
@@ -34,17 +30,15 @@ SQLiteDataStoreService : (path str->$) {
         } _ {
             << PostAsync(item)
         }
-        <<- Task.FromResult(true)
     }
 
-    [DeleteAsync (T BaseModel)] : (match (T->bool) ->> r bool) {
+    [DeleteAsync (T BaseModel)] : (match (T->bool) ->>) {
         Set : _Context.[Set T]()
         r : Set.Where{i->match(i)}.ToList()
         ? r.Count > 0 {
             Set.RemoveRange(r)
             << _Context.SaveChangesAsync()
         }
-        <<- Task.FromResult(true)
     }
 }
 #:SQLiteContext

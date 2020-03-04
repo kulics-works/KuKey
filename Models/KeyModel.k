@@ -2,6 +2,8 @@ KuKey.Models . {
     System
     System.ComponentModel.DataAnnotations
     System.ComponentModel.DataAnnotations.Schema
+
+    KuKey.Services
 }
 
 <Table("key")>
@@ -23,30 +25,30 @@ KeyModel : BaseModel & $(me) {
     <Column("hash"); get; set>
     Hash! str : ""
 
-    . encrypt : (->v BaseModel) {
+    . Encrypt : (encryptor IEncryptService->v any) {
         <- KeyModel{
-            Id = me.Id
-            Name = encrypt_content(me.Name)
-            Account = encrypt_content(me.Account)
-            Password = encrypt_content(me.Password)
-            URL = encrypt_content(me.URL)
-            Note = encrypt_content(me.Note)
-            Level = me.Level
-            Time = me.Time
-            Hash = me.Hash
+            Id = Id
+            Name = encryptor.Encrypt(Name)
+            Account = encryptor.Encrypt(Account)
+            Password = encryptor.Encrypt(Password)
+            URL = encryptor.Encrypt(URL)
+            Note = encryptor.Encrypt(Note)
+            Level = Level
+            Time = Time
+            Hash = Hash
         }
     }
-    . decrypt : (->v BaseModel) {
+    . Decrypt : (encryptor IEncryptService->v any) {
         <- KeyModel{
-            Id = me.Id
-            Name = decrypt_content(me.Name)
-            Account = decrypt_content(me.Account)
-            Password = decrypt_content(me.Password)
-            URL = decrypt_content(me.URL)
-            Note = decrypt_content(me.Note)
-            Level = me.Level
-            Time = me.Time
-            Hash = me.Hash
+            Id = Id
+            Name = encryptor.Decrypt(Name)
+            Account = encryptor.Decrypt(Account)
+            Password = encryptor.Decrypt(Password)
+            URL = encryptor.Decrypt(URL)
+            Note = encryptor.Decrypt(Note)
+            Level = Level
+            Time = Time
+            Hash = Hash
         }
     }
 }
