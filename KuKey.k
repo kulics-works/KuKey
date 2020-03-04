@@ -1,5 +1,7 @@
 KuKey . {
     System
+
+    Newtonsoft.Json
     
     KuKey.Models
     KuKey.Databases
@@ -16,25 +18,59 @@ KuKey : (databasePath str, masterPassword str->$) {     # 使用默认服务
 } & $ {
     _DataStoreService IDataStoreService     # 存储服务
     _EncryptService IEncryptService         # 加密服务
+    # 解密后的数据集，使用类型作为键，值为类型列表
+    <get;set>
+    _Dataset! : [Type]any{}
 } & $ IKuKey { # 实现接口
     UpdateEncryptService : (srv IEncryptService->) {
         _EncryptService = srv
+        # 重置数据
+        _Dataset = [Type]any{}
     }
 
     [Get (T BaseModel)] : (match (T->bool) ->> @ r T) {
-        <<- _DataStoreService.GetAsync(match)
+        ? _Dataset[typeof(T)] == nil {
+            _Dataset[typeof(T)] = []T{}
+            @ v : << _DataStoreService.[GetAsync T]{i->true}.. {
+                (_Dataset[typeof(T)] []T!).add(v.Decrypt(_EncryptService) T!)
+            }
+        }
+        <- (_Dataset[typeof(T)] []T!).find_all(match)
     }
 
     [Post (T BaseModel)] : (item T ->>) {
-        << _DataStoreService.PostAsync(item)
+        (_Dataset[typeof(T)] []T!).add(item)
+        _DataStoreService.PostAsync(item.Encrypt(_EncryptService) T!)
     }
 
     [Put (T BaseModel)] : (match (T->bool), item T ->>) {
-        << _DataStoreService.PutAsync(match, item)
+        dataset : _Dataset[typeof(T)] []T!
+        ? dataset.exists(match) {
+            dataset.update(match, item)
+        } _ {
+            dataset.add(item)
+        }
+        _DataStoreService.PutAsync(match, item)
     }
 
     [Delete (T BaseModel)] : (match (T->bool) ->>) {
-        << _DataStoreService.DeleteAsync(match)
+        (_Dataset[typeof(T)] []T!).remove_all(match)
+        _DataStoreService.DeleteAsync(match)
+    }
+
+    Export : (->>text str) {
+        keys : << _DataStoreService.[GetAsync KeyModel]{i->true}
+        <- JsonConvert.SerializeObject(keys)
+    }
+
+    Import : (text str->>) {
+        keys : JsonConvert.[DeserializeObject []KeyModel](text)
+        # 逐条导入数据
+        @ v : keys.. {
+            << _DataStoreService.PutAsync({i->i.Id==v.Id}, v)
+        }
+        # 重置数据
+        _Dataset = [Type]any{}
     }
 }
 

@@ -18,7 +18,7 @@ MemoryDataStoreService : (->$) {
     [_GetDataset (T BaseModel)] : (->r []T) {
         <- _Dataset[typeof(T)] []T! 
     }
-} & $ IDataStoreService(me) {
+} & $ IDataStoreService {
     [GetAsync (T BaseModel)] : (match (T->bool) ->> @ r T) {
         <- [_GetDataset T]().Where{i->match(i)}.ToList()
     }

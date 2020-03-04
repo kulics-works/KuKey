@@ -10,7 +10,7 @@ KuKey.Services . {
 # SQLite 数据存储服务
 SQLiteDataStoreService : (path str->$) {
     _Context = SQLiteContext(path)
-} & $ IDataStoreService(me) {
+} & $ IDataStoreService {
     _Context SQLiteContext
 
     [GetAsync (T BaseModel)] : (match (T->bool) ->> @ r T) {

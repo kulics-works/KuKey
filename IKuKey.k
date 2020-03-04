@@ -12,4 +12,6 @@ IKuKey : $$ {
     [Post (T BaseModel)] (item T ->>)
     [Put (T BaseModel)] (match (T->bool), item T ->>)
     [Delete (T BaseModel)] (match (T->bool) ->>)
+    Export (->>text str)
+    Import (text str->>)
 }
