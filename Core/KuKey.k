@@ -81,6 +81,10 @@ KuKey : (databasePath str, masterPassword str->$) {     # 使用默认服务
         # 重置数据
         _Dataset = [Type]any{}
     }
+
+    GeneratePassword : (lv PasswordLevel, len int->v str) {
+        <- _EncryptService.GeneratePassword(lv, len)
+    }
 }
 
 #:DefaultDataStoreService

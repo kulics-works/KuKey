@@ -14,4 +14,5 @@ IKuKey : $$ {
     [Delete (T BaseModel)] (match (T->bool) ->>)
     Export (->>text str)
     Import (text str->>)
+    GeneratePassword (lv PasswordLevel, len int->v str)
 }
