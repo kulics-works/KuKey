@@ -23,9 +23,12 @@ KuKey : (databasePath str, masterPassword str->$) {     # 使用默认服务
     # 解密后的数据集，使用类型作为键，值为类型列表
     <get;set>
     _Dataset! : [Type]any{}
-
+    # 初始化
     _Init : (->) {
-        [Get KeyModel]{i->true}
+        [_InitDataset KeyModel]()
+    }
+    [_InitDataset T] : (->) {
+        _Dataset.add(typeof(T), []T{})
     }
 } & $ IKuKey { # 实现接口
     UpdateEncryptService : (srv IEncryptService->) {
@@ -73,7 +76,7 @@ KuKey : (databasePath str, masterPassword str->$) {     # 使用默认服务
         keys : JsonConvert.[DeserializeObject []KeyModel](text)
         # 逐条导入数据
         @ v : keys.. {
-            << _DataStoreService.PutAsync({i->i.Id==v.Id}, v.Encrypt(_EncryptService) KeyModel!)
+            << _DataStoreService.PutAsync({i->i.Id==v.Id}, v)
         }
         # 重置数据
         _Dataset = [Type]any{}
