@@ -29,17 +29,17 @@ DefaultDataStoreService : MemoryDataStoreService & (path str->$) {
 
     . [PostAsync T] : (item T ->>) {
         << super.[PostAsync T](item)
-        _SQLService.[PostAsync T](item)
+        << _SQLService.[PostAsync T](item)
     }
 
     . [PutAsync T] : (item T ->>) {
         << super.[PutAsync T](item)
-        _SQLService.[PutAsync T](item)
+        << _SQLService.[PutAsync T](item)
     }
 
     . [DeleteAsync T] : (match (T->bool) ->>) {
         << super.[DeleteAsync T](match)
-        _SQLService.[DeleteAsync T](match)
+        << _SQLService.[DeleteAsync T](match)
     }
 }
 #:SQLiteDataStoreService

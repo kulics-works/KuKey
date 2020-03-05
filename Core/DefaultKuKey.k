@@ -9,7 +9,7 @@ Kulics.KuKey.Core . {
 }
 
 # 主程序
-KuKey : (databasePath str, masterPassword str->$) {     # 使用默认服务
+DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服务
     _DataStoreService = DefaultDataStoreService(databasePath)
     _EncryptService = DefaultEncryptService(masterPassword)
     _Init()
@@ -49,7 +49,7 @@ KuKey : (databasePath str, masterPassword str->$) {     # 使用默认服务
 
     [Post (T BaseModel)] : (item T ->>) {
         (_Dataset[typeof(T)] []T!).add(item)
-        _DataStoreService.PostAsync(item.Encrypt(_EncryptService) T!)
+        << _DataStoreService.PostAsync(item.Encrypt(_EncryptService) T!)
     }
 
     [Put (T BaseModel)] : (item T ->>) {
@@ -59,12 +59,12 @@ KuKey : (databasePath str, masterPassword str->$) {     # 使用默认服务
         } _ {
             dataset.add(item)
         }
-        _DataStoreService.PutAsync(item.Encrypt(_EncryptService) T!)
+        << _DataStoreService.PutAsync(item.Encrypt(_EncryptService) T!)
     }
 
     [Delete (T BaseModel)] : (match (T->bool) ->>) {
         (_Dataset[typeof(T)] []T!).remove_all(match)
-        _DataStoreService.DeleteAsync(match)
+        << _DataStoreService.DeleteAsync(match)
     }
 
     Export : (->>text str) {
