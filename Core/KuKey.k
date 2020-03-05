@@ -56,7 +56,7 @@ KuKey : (databasePath str, masterPassword str->$) {     # 使用默认服务
         } _ {
             dataset.add(item)
         }
-        _DataStoreService.PutAsync(match, item)
+        _DataStoreService.PutAsync(match, item.Encrypt(_EncryptService) T!)
     }
 
     [Delete (T BaseModel)] : (match (T->bool) ->>) {
@@ -73,7 +73,7 @@ KuKey : (databasePath str, masterPassword str->$) {     # 使用默认服务
         keys : JsonConvert.[DeserializeObject []KeyModel](text)
         # 逐条导入数据
         @ v : keys.. {
-            << _DataStoreService.PutAsync({i->i.Id==v.Id}, v)
+            << _DataStoreService.PutAsync({i->i.Id==v.Id}, v.Encrypt(_EncryptService) KeyModel!)
         }
         # 重置数据
         _Dataset = [Type]any{}
