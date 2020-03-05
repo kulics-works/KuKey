@@ -32,9 +32,9 @@ DefaultDataStoreService : MemoryDataStoreService & (path str->$) {
         _SQLService.[PostAsync T](item)
     }
 
-    . [PutAsync T] : (match (T->bool), item T ->>) {
-        << super.[PutAsync T](match, item)
-        _SQLService.[PutAsync T](match, item)
+    . [PutAsync T] : (item T ->>) {
+        << super.[PutAsync T](item)
+        _SQLService.[PutAsync T](item)
     }
 
     . [DeleteAsync T] : (match (T->bool) ->>) {

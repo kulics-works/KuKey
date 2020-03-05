@@ -10,7 +10,7 @@ IKuKey : $$ {
     UpdateEncryptService (srv IEncryptService->)
     [Get (T BaseModel)] (match (T->bool) ->> r []T)
     [Post (T BaseModel)] (item T ->>)
-    [Put (T BaseModel)] (match (T->bool), item T ->>)
+    [Put (T BaseModel)] (item T ->>)
     [Delete (T BaseModel)] (match (T->bool) ->>)
     Export (->>text str)
     Import (text str->>)

@@ -9,35 +9,39 @@ Kulics.KuKey.Services . {
 }
 # SQLite 数据存储服务
 SQLiteDataStoreService : (path str->$) {
-    _Context = SQLiteContext(path)
+    _Path = path
 } & $ IDataStoreService {
-    _Context SQLiteContext
+    _Path str
 
     [GetAsync (T BaseModel)] : (match (T->bool) ->> r []T) {
-        <- _Context.[Set T]().Where(match).to_list()
+        ! ctx : SQLiteContext(_Path)
+        <- ctx.[Set T]().Where(match).to_list()
     }
 
     [PostAsync (T BaseModel)] : (item T ->>) {
-        _Context.[Set T]().Add(item)
-        << _Context.SaveChangesAsync()
+        ! ctx : SQLiteContext(_Path)
+        ctx.[Set T]().Add(item)
+        << ctx.SaveChangesAsync()
     }
 
-    [PutAsync (T BaseModel)] : (match (T->bool), item T ->>) {
-        Set : _Context.[Set T]()
-        ? Set.Where(match).Count() > 0 {
-            Set.Update(item)
-            << _Context.SaveChangesAsync()
+    [PutAsync (T BaseModel)] : (item T ->>) {
+        ! ctx : SQLiteContext(_Path)
+        dbset : ctx.[Set T]()
+        ? dbset.Where{i->i.Id==item.Id}.Count() > 0 {
+            dbset.Update(item)
         } _ {
-            << PostAsync(item)
+            dbset.Add(item)
         }
+        << ctx.SaveChangesAsync()
     }
 
     [DeleteAsync (T BaseModel)] : (match (T->bool) ->>) {
-        Set : _Context.[Set T]()
-        r : Set.Where(match).ToList()
+        ! ctx : SQLiteContext(_Path)
+        dbset : ctx.[Set T]()
+        r : dbset.Where(match).ToList()
         ? r.Count > 0 {
-            Set.RemoveRange(r)
-            << _Context.SaveChangesAsync()
+            dbset.RemoveRange(r)
+            << ctx.SaveChangesAsync()
         }
     }
 }

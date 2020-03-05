@@ -30,10 +30,10 @@ MemoryDataStoreService : (->$) {
         [_GetDataset T]().add(item)
     }
 
-    [PutAsync (T BaseModel)] : (match (T->bool), item T ->>) {
+    [PutAsync (T BaseModel)] : (item T ->>) {
         dataset : [_GetDataset T]()
-        ? dataset.exists(match) {
-            dataset.update(match, item)
+        ? dataset.exists{i->i.Id==item.Id} {
+            dataset.update({i->i.Id==item.Id}, item)
         } _ {
             dataset.add(item)
         }
