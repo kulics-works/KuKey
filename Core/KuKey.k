@@ -41,7 +41,7 @@ KuKey : (databasePath str, masterPassword str->$) {     # 使用默认服务
                 (_Dataset[typeof(T)] []T!).add(v.Decrypt(_EncryptService) T!)
             }
         }
-        <- (_Dataset[typeof(T)] []T!).find_all(match)
+        <- (_Dataset[typeof(T)] []T!).find_all(match).to_list()
     }
 
     [Post (T BaseModel)] : (item T ->>) {
