@@ -14,7 +14,7 @@ SQLiteDataStoreService : (path str->$) {
     _Context SQLiteContext
 
     [GetAsync (T BaseModel)] : (match (T->bool) ->> r []T) {
-        <- _Context.[Set T]().Where{i->match(i)}.to_list()
+        <- _Context.[Set T]().Where(match).to_list()
     }
 
     [PostAsync (T BaseModel)] : (item T ->>) {
@@ -24,7 +24,7 @@ SQLiteDataStoreService : (path str->$) {
 
     [PutAsync (T BaseModel)] : (match (T->bool), item T ->>) {
         Set : _Context.[Set T]()
-        ? Set.Where{i->match(i)}.Count() > 0 {
+        ? Set.Where(match).Count() > 0 {
             Set.Update(item)
             << _Context.SaveChangesAsync()
         } _ {
@@ -34,7 +34,7 @@ SQLiteDataStoreService : (path str->$) {
 
     [DeleteAsync (T BaseModel)] : (match (T->bool) ->>) {
         Set : _Context.[Set T]()
-        r : Set.Where{i->match(i)}.ToList()
+        r : Set.Where(match).ToList()
         ? r.Count > 0 {
             Set.RemoveRange(r)
             << _Context.SaveChangesAsync()

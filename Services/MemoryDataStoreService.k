@@ -23,7 +23,7 @@ MemoryDataStoreService : (->$) {
     }
 } & $ IDataStoreService {
     [GetAsync (T BaseModel)] : (match (T->bool) ->> r []T) {
-        <- [_GetDataset T]().Where{i->match(i)}.to_list()
+        <- [_GetDataset T]().Where(match).to_list()
     }
 
     [PostAsync (T BaseModel)] : (item T ->>) {
