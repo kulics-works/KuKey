@@ -9,17 +9,17 @@ Kulics.KuKey.Models . {
 <Table("key")>
 KeyModel : BaseModel & $(me) {
     <Column("name"); get; set>
-    Name! str
+    Name! : ""
     <Column("account"); get; set>
-    Account! str
+    Account! : ""
     <Column("password"); get; set>
-    Password! str
+    Password! : ""
     <Column("url"); get; set>
-    URL! str
+    URL! : ""
     <Column("note"); get; set>
-    Note! str
+    Note! : ""
     <Column("version"); get; set>
-    Version! int
+    Version! : 0
 
     . Encrypt : (encryptor IEncryptService->v any) {
         <- KeyModel{
