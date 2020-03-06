@@ -9,21 +9,17 @@ Kulics.KuKey.Models . {
 <Table("key")>
 KeyModel : BaseModel & $(me) {
     <Column("name"); get; set>
-    Name! str : ""
+    Name! str
     <Column("account"); get; set>
-    Account! str : ""
+    Account! str
     <Column("password"); get; set>
-    Password! str : ""
+    Password! str
     <Column("url"); get; set>
-    URL! str : ""
+    URL! str
     <Column("note"); get; set>
-    Note! str : ""
+    Note! str
     <Column("level"); get; set>
-    Level! int : 0
-    <Column("time"); get; set>
-    Time! int : 0
-    <Column("hash"); get; set>
-    Hash! str : ""
+    Version! int
 
     . Encrypt : (encryptor IEncryptService->v any) {
         <- KeyModel{
@@ -33,9 +29,9 @@ KeyModel : BaseModel & $(me) {
             Password = encryptor.Encrypt(Password)
             URL = encryptor.Encrypt(URL)
             Note = encryptor.Encrypt(Note)
-            Level = Level
-            Time = Time
-            Hash = Hash
+            Version = Version
+            CreateAt = CreateAt
+            UpdateAt = UpdateAt
         }
     }
     . Decrypt : (encryptor IEncryptService->v any) {
@@ -46,9 +42,9 @@ KeyModel : BaseModel & $(me) {
             Password = encryptor.Decrypt(Password)
             URL = encryptor.Decrypt(URL)
             Note = encryptor.Decrypt(Note)
-            Level = Level
-            Time = Time
-            Hash = Hash
+            Version = Version
+            CreateAt = CreateAt
+            UpdateAt = UpdateAt
         }
     }
 }
