@@ -18,7 +18,7 @@ KeyModel : BaseModel & $(me) {
     URL! str
     <Column("note"); get; set>
     Note! str
-    <Column("level"); get; set>
+    <Column("version"); get; set>
     Version! int
 
     . Encrypt : (encryptor IEncryptService->v any) {
