@@ -17,12 +17,12 @@ DefaultDataStoreService : MemoryDataStoreService & (path str->$) {
     
     . [GetAsync T] : (match (T->bool) ->> r []T) {
         # 检查内存中是否有数据集，如果无则去数据库中查找
-        ? _Dataset[typeof(T)] == nil {
-            dataset : _Dataset[typeof(T)] []T!
-            dataset = []T{}
+        ? ~_Dataset.has_key(typeof(T)) {
+            dataset : []T{}
             @ v : << _SQLService.[GetAsync T]{i->true}.. {
                 dataset.add(v)
             }
+            _Dataset.add(typeof(T), dataset)
         }
         <<- super.[GetAsync T](match)
     }

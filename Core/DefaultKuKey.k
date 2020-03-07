@@ -12,23 +12,23 @@ Kulics.KuKey.Core . {
 DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服务
     _DataStoreService = DefaultDataStoreService(databasePath)
     _EncryptService = DefaultEncryptService(masterPassword)
-    _Init()
 } & (dataSrv IDataStoreService, encryptSrv IEncryptService->$) {   # 使用自定义服务
     _DataStoreService = dataSrv
     _EncryptService = encryptSrv
-    _Init()
 } & $ {
     _DataStoreService IDataStoreService     # 存储服务
     _EncryptService IEncryptService         # 加密服务
     # 解密后的数据集，使用类型作为键，值为类型列表
     <get;set>
     _Dataset! : [Type]any{}
-    # 初始化
-    _Init : (->) {
-        [_InitDataset KeyModel]()
-    }
-    [_InitDataset T] : (->) {
-        _Dataset.add(typeof(T), []T{})
+    # 检查数据集
+    [_CheckDataset (T BaseModel)] : (->>) {
+        ? ~_Dataset.has_key(typeof(T)) {
+            _Dataset.add(typeof(T), []T{})
+            @ v : << _DataStoreService.[GetAsync T]{i->true}.. {
+                (_Dataset[typeof(T)] []T!).add(v.Decrypt(_EncryptService) T!)
+            }
+        }
     }
 } & $ IKuKey { # 实现接口
     UpdateEncryptService : (srv IEncryptService->) {
@@ -38,16 +38,12 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
     }
 
     [Get (T BaseModel)] : (match (T->bool) ->> r []T) {
-        ? ~_Dataset.has_key(typeof(T)) {
-            _Dataset.add(typeof(T), []T{})
-            @ v : << _DataStoreService.[GetAsync T]{i->true}.. {
-                (_Dataset[typeof(T)] []T!).add(v.Decrypt(_EncryptService) T!)
-            }
-        }
+        << [_CheckDataset T]()
         <- (_Dataset[typeof(T)] []T!).find_all(match).to_list()
     }
 
     [Post (T BaseModel)] : (item T ->>) {
+        << [_CheckDataset T]()
         item.Id = Guid.NewGuid().ToString()
         time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
         item.CreateAt = time
@@ -57,6 +53,7 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
     }
 
     [Put (T BaseModel)] : (item T ->>) {
+        << [_CheckDataset T]()
         time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
         item.UpdateAt = time
         dataset : _Dataset[typeof(T)] []T!
@@ -70,6 +67,7 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
     }
 
     [Delete (T BaseModel)] : (match (T->bool) ->>) {
+        << [_CheckDataset T]()
         (_Dataset[typeof(T)] []T!).remove_all(match)
         << _DataStoreService.DeleteAsync(match)
     }
