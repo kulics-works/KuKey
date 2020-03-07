@@ -48,15 +48,22 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
     }
 
     [Post (T BaseModel)] : (item T ->>) {
+        item.Id = Guid.NewGuid().ToString()
+        time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
+        item.CreateAt = time
+        item.UpdateAt = time
         (_Dataset[typeof(T)] []T!).add(item)
         << _DataStoreService.PostAsync(item.Encrypt(_EncryptService) T!)
     }
 
     [Put (T BaseModel)] : (item T ->>) {
+        time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
+        item.UpdateAt = time
         dataset : _Dataset[typeof(T)] []T!
         ? dataset.exists{i->i.Id==item.Id} {
             dataset.update({i->i.Id==item.Id}, item)
         } _ {
+            item.CreateAt = time
             dataset.add(item)
         }
         << _DataStoreService.PutAsync(item.Encrypt(_EncryptService) T!)
@@ -89,3 +96,4 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
 
 #:DefaultDataStoreService
 #:DefaultEncryptService
+#:DateTime

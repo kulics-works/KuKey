@@ -8,7 +8,7 @@ Kulics.KuKey.Models . {
 
 BaseModel : $ (me) {
     # 主键
-    <Key; Column("id"); DatabaseGenerated(DatabaseGeneratedOption.Identity); get; set>
+    <Key; Column("id"); get; set>
     Id! : ""
     # 创建时间
     <Column("create_at"); get; set>
