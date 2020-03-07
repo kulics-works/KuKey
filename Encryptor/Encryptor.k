@@ -32,7 +32,7 @@ AES256Encrypt : (content str, key str -> v str) {
     }
     CryptoTransform : AES.CreateEncryptor()
     ResultArray : CryptoTransform.TransformFinalBlock(ValueByte, 0, ValueByte.Length)
-    <- ResultArray.to_str_by_base64()
+    <- ResultArray.to_base64_str()
 }
 
 # 解密
