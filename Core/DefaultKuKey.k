@@ -73,7 +73,7 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
         ? typeof(T) == typeof(KeyModel) {
             deletelist : (_Dataset[typeof(T)] []T!).find_all(match).to_list()
             @ v : deletelist.. {
-                << _DataStoreService.PostAsync(DeleteModel{Id=v.Id})
+                << _DataStoreService.PostAsync(DeleteRecordModel{Id=v.Id})
             }
         }
         (_Dataset[typeof(T)] []T!).remove_all(match)
@@ -82,7 +82,7 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
 
     Export : (->>text str) {
         keys : << _DataStoreService.[GetAsync KeyModel]{i->true}
-        deletes : << _DataStoreService.[GetAsync DeleteModel]{i->true}
+        deletes : << _DataStoreService.[GetAsync DeleteRecordModel]{i->true}
         <- JsonConvert.SerializeObject(KuKeyFormat{
                 Key = keys
                 Delete = deletes
@@ -110,7 +110,7 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
 
 KuKeyFormat : $ {
     Key         []KeyModel
-    Delete      []DeleteModel
+    Delete      []DeleteRecordModel
 }
 
 #:DefaultDataStoreService
