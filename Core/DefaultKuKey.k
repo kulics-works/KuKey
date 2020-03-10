@@ -69,20 +69,35 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
 
     [Delete (T BaseModel)] : (match (T->bool) ->>) {
         << [_CheckDataset T]()
+        # 如果是删除key，需要保留删除列表
+        ? typeof(T) == typeof(KeyModel) {
+            deletelist : (_Dataset[typeof(T)] []T!).find_all(match).to_list()
+            @ v : deletelist.. {
+                << _DataStoreService.PostAsync(DeleteModel{Id=v.Id})
+            }
+        }
         (_Dataset[typeof(T)] []T!).remove_all(match)
         << _DataStoreService.DeleteAsync(match)
     }
 
     Export : (->>text str) {
         keys : << _DataStoreService.[GetAsync KeyModel]{i->true}
-        <- JsonConvert.SerializeObject(keys)
+        deletes : << _DataStoreService.[GetAsync DeleteModel]{i->true}
+        <- JsonConvert.SerializeObject(KuKeyFormat{
+                Key = keys
+                Delete = deletes
+            })
     }
 
     Import : (text str->>) {
-        keys : JsonConvert.[DeserializeObject []KeyModel](text)
+        source : JsonConvert.[DeserializeObject KuKeyFormat](text)
         # 逐条导入数据
-        @ v : keys.. {
+        @ v : source.Key.. {
             << _DataStoreService.PutAsync(v)
+        }
+        # 逐条删除数据
+        @ v : source.Delete.. {
+            << _DataStoreService.[DeleteAsync KeyModel]{i->i.Id==v.Id}
         }
         # 重置数据
         _Dataset = [Type]any{}
@@ -91,6 +106,11 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
     GeneratePassword : (lv PasswordLevel, len int->v str) {
         <- _EncryptService.GeneratePassword(lv, len)
     }
+}
+
+KuKeyFormat : $ {
+    Key         []KeyModel
+    Delete      []DeleteModel
 }
 
 #:DefaultDataStoreService
