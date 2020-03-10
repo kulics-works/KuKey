@@ -9,7 +9,7 @@ Kulics.KuKey.Core . {
 IKuKey : $$ {
     UpdateEncryptService (srv IEncryptService->)
     [Get (T BaseModel)] (match (T->bool) ->> r []T)
-    [Post (T BaseModel)] (item T ->>)
+    [Post (T BaseModel)] (item T ->>id str)
     [Put (T BaseModel)] (item T ->>)
     [Delete (T BaseModel)] (match (T->bool) ->>)
     Export (->>text str)

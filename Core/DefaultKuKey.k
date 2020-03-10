@@ -42,7 +42,7 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
         <- (_Dataset[typeof(T)] []T!).find_all(match).to_list()
     }
 
-    [Post (T BaseModel)] : (item T ->>) {
+    [Post (T BaseModel)] : (item T ->>id str) {
         << [_CheckDataset T]()
         item.Id = Guid.NewGuid().ToString()
         time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
@@ -50,6 +50,7 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
         item.UpdateAt = time
         (_Dataset[typeof(T)] []T!).add(item)
         << _DataStoreService.PostAsync(item.Encrypt(_EncryptService) T!)
+        <- item.Id
     }
 
     [Put (T BaseModel)] : (item T ->>) {
