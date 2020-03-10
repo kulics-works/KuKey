@@ -69,20 +69,15 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
 
     [Delete (T BaseModel)] : (match (T->bool) ->>) {
         << [_CheckDataset T]()
-        # 如果是删除key，需要保留删除列表
-        ? typeof(T) == typeof(KeyModel) {
-            deletelist : (_Dataset[typeof(T)] []T!).find_all(match).to_list()
-            @ v : deletelist.. {
-                << _DataStoreService.PostAsync(DeleteRecordModel{Id=v.Id})
-            }
-        }
         (_Dataset[typeof(T)] []T!).remove_all(match)
         << _DataStoreService.DeleteAsync(match)
     }
 
     Export : (->>text str) {
         keys : << _DataStoreService.[GetAsync KeyModel]{i->true}
-        deletes : << _DataStoreService.[GetAsync DeleteRecordModel]{i->true}
+        deletes : @ v : << _DataStoreService.[GetAsync DeleteRecordModel]{i->true}.. -> {
+            v.Id
+        }
         <- JsonConvert.SerializeObject(KuKeyFormat{
                 Key = keys
                 Delete = deletes
@@ -97,7 +92,8 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
         }
         # 逐条删除数据
         @ v : source.Delete.. {
-            << _DataStoreService.[DeleteAsync KeyModel]{i->i.Id==v.Id}
+            << _DataStoreService.[DeleteAsync KeyModel]{i->i.Id==v}
+            << _DataStoreService.PutAsync(DeleteRecordModel{Id=v})
         }
         # 重置数据
         _Dataset = [Type]any{}
@@ -110,7 +106,7 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
 
 KuKeyFormat : $ {
     Key         []KeyModel
-    Delete      []DeleteRecordModel
+    Delete      []str
 }
 
 #:DefaultDataStoreService
