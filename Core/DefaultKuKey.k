@@ -25,9 +25,23 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
     [_CheckDataset (T BaseModel)] : (->>) {
         ? ~_Dataset.has_key(typeof(T)) {
             _Dataset.add(typeof(T), []T{})
-            @ v : << _DataStoreService.[GetAsync T]{i->true}.. {
+            @ v : << _DataStoreService.[QueryAllAsync T]{i->true}.. {
                 (_Dataset[typeof(T)] []T!).add(v.Decrypt(_EncryptService) T!)
             }
+        }
+    }
+    # 导入
+    [_Import (T BaseModel)] : (item T ->>) {
+        dataset : _Dataset[typeof(T)] []T!
+        data : dataset.find_first{i->i.Id==item.Id}
+        ? data >< nil {
+            ? data.UpdateAt < item.UpdateAt {
+                dataset.update({i->i.Id==item.Id}, item)
+                << _DataStoreService.UpdateAsync(item.Encrypt(_EncryptService) T!)
+            }
+        } _ {
+            dataset.add(item)
+            << _DataStoreService.CreateAsync(item.Encrypt(_EncryptService) T!)
         }
     }
 } & $ IKuKey { # 实现接口
@@ -37,45 +51,44 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
         _Dataset = [Type]any{}
     }
 
-    [Get (T BaseModel)] : (match (T->bool) ->> r []T) {
-        << [_CheckDataset T]()
-        <- (_Dataset[typeof(T)] []T!).find_all(match).to_list()
-    }
-
-    [Post (T BaseModel)] : (item T ->>id str) {
+    [Create (T BaseModel)] : (item T ->>id str) {
         << [_CheckDataset T]()
         item.Id = Guid.NewGuid().ToString()
         time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
         item.CreateAt = time
         item.UpdateAt = time
         (_Dataset[typeof(T)] []T!).add(item)
-        << _DataStoreService.PostAsync(item.Encrypt(_EncryptService) T!)
+        << _DataStoreService.CreateAsync(item.Encrypt(_EncryptService) T!)
         <- item.Id
     }
 
-    [Put (T BaseModel)] : (item T ->>) {
+    [Update (T BaseModel)] : (item T ->>) {
         << [_CheckDataset T]()
         time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
         item.UpdateAt = time
-        dataset : _Dataset[typeof(T)] []T!
-        ? dataset.exists{i->i.Id==item.Id} {
-            dataset.update({i->i.Id==item.Id}, item)
-        } _ {
-            item.CreateAt = time
-            dataset.add(item)
-        }
-        << _DataStoreService.PutAsync(item.Encrypt(_EncryptService) T!)
+        (_Dataset[typeof(T)] []T!).update({i->i.Id==item.Id}, item)
+        << _DataStoreService.UpdateAsync(item.Encrypt(_EncryptService) T!)
     }
 
-    [Delete (T BaseModel)] : (match (T->bool) ->>) {
+    [Delete (T BaseModel)] : (id str ->>) {
         << [_CheckDataset T]()
-        (_Dataset[typeof(T)] []T!).remove_all(match)
-        << _DataStoreService.DeleteAsync(match)
+        (_Dataset[typeof(T)] []T!).remove_all{i->i.Id==id}
+        << _DataStoreService.[DeleteAsync T](id)
+    }
+
+    [Query (T BaseModel)] : (id str ->> r ?T) {
+        << [_CheckDataset T]()
+        <- (_Dataset[typeof(T)] []T!).find_first{i->i.Id==id}
+    }
+
+    [QueryAll (T BaseModel)] : (match (T->bool) ->> @ r T) {
+        << [_CheckDataset T]()
+        <- (_Dataset[typeof(T)] []T!).find_all(match)
     }
 
     Export : (->>text str) {
-        keys : << _DataStoreService.[GetAsync KeyModel]{i->true}
-        deletes : @ v : << _DataStoreService.[GetAsync DeleteRecordModel]{i->true}.. -> {
+        keys : (<< _DataStoreService.[QueryAllAsync KeyModel]{i->true}).to_list()
+        deletes : @ v : << _DataStoreService.[QueryAllAsync DeleteRecordModel]{i->true}.. -> {
             v.Id
         }
         <- JsonConvert.SerializeObject(KuKeyFormat{
@@ -87,16 +100,19 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
     Import : (text str->>) {
         source : JsonConvert.[DeserializeObject KuKeyFormat](text)
         # 逐条导入数据
+        << [_CheckDataset KeyModel]()
         @ v : source.Key.. {
-            << _DataStoreService.PutAsync(v)
+            << _Import(v)
         }
         # 逐条删除数据
+        << [_CheckDataset DeleteRecordModel]()
+        keys : _Dataset[typeof(KeyModel)] []KeyModel!
         @ v : source.Delete.. {
-            << _DataStoreService.[DeleteAsync KeyModel]{i->i.Id==v}
-            << _DataStoreService.PutAsync(DeleteRecordModel{Id=v})
+            ? keys.exists{i->i.Id==v} {
+                << [Delete KeyModel](v)
+            }
+            << _Import(DeleteRecordModel(v))
         }
-        # 重置数据
-        _Dataset = [Type]any{}
     }
 
     GeneratePassword : (lv PasswordLevel, len int->v str) {
@@ -112,3 +128,4 @@ KuKeyFormat : $ {
 #:DefaultDataStoreService
 #:DefaultEncryptService
 #:DateTime
+#:DeleteRecordModel

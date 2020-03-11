@@ -11,35 +11,38 @@ Kulics.KuKey.Services . {
 DefaultDataStoreService : MemoryDataStoreService & (path str->$) {
     # 使用SQLite数据库服务作持久化存储
     _SQLService = SQLiteDataStoreService(path)
-} & $ (me, super) {
+} & $ {
     # 数据库存储服务
     _SQLService IDataStoreService
-    
-    . [GetAsync T] : (match (T->bool) ->> r []T) {
+} & $ (me, super) {
+    . [CreateAsync T] : (item T ->>) {
+        << super.[CreateAsync T](item)
+        << _SQLService.[CreateAsync T](item)
+    }
+
+    . [UpdateAsync T] : (item T ->>) {
+        << super.[UpdateAsync T](item)
+        << _SQLService.[UpdateAsync T](item)
+    }
+
+    . [DeleteAsync T] : (id str ->>) {
+        << super.[DeleteAsync T](id)
+        << _SQLService.[DeleteAsync T](id)
+    }
+
+    . [QueryAsync T] : (id str ->> r T) {
         # 检查内存中是否有数据集，如果无则去数据库中查找
         ? ~_Dataset.has_key(typeof(T)) {
-            dataset : []T{}
-            @ v : << _SQLService.[GetAsync T]{i->true}.. {
-                dataset.add(v)
-            }
-            _Dataset.add(typeof(T), dataset)
+            _Dataset.add(typeof(T), (<< _SQLService.[QueryAllAsync T]{i->true}).to_list())
         }
-        <<- super.[GetAsync T](match)
+        <- << super.[QueryAsync T](id)
     }
-
-    . [PostAsync T] : (item T ->>) {
-        << super.[PostAsync T](item)
-        << _SQLService.[PostAsync T](item)
-    }
-
-    . [PutAsync T] : (item T ->>) {
-        << super.[PutAsync T](item)
-        << _SQLService.[PutAsync T](item)
-    }
-
-    . [DeleteAsync T] : (match (T->bool) ->>) {
-        << super.[DeleteAsync T](match)
-        << _SQLService.[DeleteAsync T](match)
+    . [QueryAllAsync T] : (match (T->bool) ->> @ r T) {
+        # 检查内存中是否有数据集，如果无则去数据库中查找
+        ? ~_Dataset.has_key(typeof(T)) {
+            _Dataset.add(typeof(T), (<< _SQLService.[QueryAllAsync T]{i->true}).to_list())
+        }
+        <<- super.[QueryAllAsync T](match)
     }
 }
 #:SQLiteDataStoreService

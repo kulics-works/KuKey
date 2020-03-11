@@ -22,25 +22,24 @@ MemoryDataStoreService : (->$) {
         <- _Dataset[typeof(T)] []T! 
     }
 } & $ IDataStoreService {
-    [GetAsync (T BaseModel)] : (match (T->bool) ->> r []T) {
-        <- [_GetDataset T]().Where(match).to_list()
-    }
-
-    [PostAsync (T BaseModel)] : (item T ->>) {
+    [CreateAsync (T BaseModel)] : (item T ->>) {
         [_GetDataset T]().add(item)
     }
 
-    [PutAsync (T BaseModel)] : (item T ->>) {
-        dataset : [_GetDataset T]()
-        ? dataset.exists{i->i.Id==item.Id} {
-            dataset.update({i->i.Id==item.Id}, item)
-        } _ {
-            dataset.add(item)
-        }
+    [UpdateAsync (T BaseModel)] : (item T ->>) {
+        [_GetDataset T]().update({i->i.Id==item.Id}, item)
     }
 
-    [DeleteAsync (T BaseModel)] : (match (T->bool) ->>) {
-        [_GetDataset T]().remove_all(match)
+    [DeleteAsync (T BaseModel)] : (id str ->>) {
+        [_GetDataset T]().remove_all{i->i.Id==id}
+    }
+
+    [QueryAsync (T BaseModel)] : (id str ->> r ?T) {
+        <- [_GetDataset T]().First{i->i.Id==id}
+    }
+
+    [QueryAllAsync (T BaseModel)] : (match (T->bool) ->> @ r T) {
+        <- [_GetDataset T]().Where(match)
     }
 }
 #:SQLiteContext

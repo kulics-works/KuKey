@@ -5,8 +5,9 @@ Kulics.KuKey.Services . {
 }
 
 IDataStoreService : $$ {
-    [GetAsync (T BaseModel)] (match (T->bool) ->> r []T)
-    [PostAsync (T BaseModel)] (item T ->>)
-    [PutAsync (T BaseModel)] (item T ->>)
-    [DeleteAsync (T BaseModel)] (match (T->bool) ->>)
+    [CreateAsync (T BaseModel)] (item T ->>)
+    [UpdateAsync (T BaseModel)] (item T ->>)
+    [DeleteAsync (T BaseModel)] (id str ->>)
+    [QueryAsync (T BaseModel)] (id str ->> r ?T)
+    [QueryAllAsync (T BaseModel)] (match (T->bool) ->> @ r T)
 }
