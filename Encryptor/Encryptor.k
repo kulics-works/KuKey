@@ -52,9 +52,13 @@ AES256Decrypt : (content str, key str -> v str) {
         Mode = CipherMode.CBC
         Padding = PaddingMode.PKCS7
     }
-    CryptoTransform : AES.CreateDecryptor()
-    ResultArray : CryptoTransform.TransformFinalBlock(ValueByte, 0, ValueByte.Length)
-    <- ResultArray.to_str()
+    ! {
+        CryptoTransform : AES.CreateDecryptor()
+        ResultArray : CryptoTransform.TransformFinalBlock(ValueByte, 0, ValueByte.Length)
+        <- ResultArray.to_str()
+    } e {
+        <- content
+    }
 }
 
 # 生成数字密码
