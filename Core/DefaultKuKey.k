@@ -15,7 +15,7 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
 } & (dataSrv IDataStoreService, encryptSrv IEncryptService->$) {   # 使用自定义服务
     _DataStoreService = dataSrv
     _EncryptService = encryptSrv
-} & $ {
+} & IKuKey & $ {
     _DataStoreService IDataStoreService     # 存储服务
     _EncryptService IEncryptService         # 加密服务
     # 解密后的数据集，使用类型作为键，值为类型列表
@@ -44,7 +44,7 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
             << _DataStoreService.CreateAsync(item.Encrypt(_EncryptService) T!)
         }
     }
-} & $ IKuKey { # 实现接口
+    # 实现接口
     UpdateEncryptService : (srv IEncryptService->) {
         _EncryptService = srv
         # 重置数据

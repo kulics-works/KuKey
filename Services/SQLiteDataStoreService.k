@@ -10,9 +10,9 @@ Kulics.KuKey.Services . {
 # SQLite 数据存储服务
 SQLiteDataStoreService : (path str->$) {
     _Path = path
-} & $ {
+} & IDataStoreService & $ {
     _Path str
-} & $ IDataStoreService {
+
     [CreateAsync (T BaseModel)] : (item T ->>) {
         ! ctx : SQLiteContext(_Path)
         ctx.[Set T]().Add(item)

@@ -4,10 +4,9 @@ Kulics.KuKey.Services . {
 # 加密服务
 DefaultEncryptService : (password str->$) {
     _MasterPassword = password
-} & $ {
+} & IEncryptService & $ {
     # 主密码
     _MasterPassword str
-} & $ IEncryptService {
     # 加密
     Encrypt : (v str -> v str) {
         <- AES256Encrypt(v, _MasterPassword)
