@@ -26,7 +26,10 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
         ? ~_Dataset.has_key(typeof(T)) {
             _Dataset.add(typeof(T), []T{})
             @ v : << _DataStoreService.[QueryAllAsync T]{i->true}.. {
-                (_Dataset[typeof(T)] []T!).add(v.Decrypt(_EncryptService) T!)
+                item, success : v.Decrypt(_EncryptService)
+                ? success {
+                    (_Dataset[typeof(T)] []T!).add(item T!)
+                }
             }
         }
     }

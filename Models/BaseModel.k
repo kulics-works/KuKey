@@ -21,7 +21,7 @@ BaseModel : $ (me) {
         <- me
     }
     # 解密模型
-    Decrypt : (encryptor IEncryptService->v any) {
-        <- me
+    Decrypt : (encryptor IEncryptService->v any, b bool) {
+        <- me, true
     }
 }

@@ -38,7 +38,7 @@ AES256Encrypt : (content str, key str -> v str) {
 # 解密
 # 将key散列，拆成前后两部分用于AES256的key和iv，最后输出base64
 # AES256，CBC模式，PKCS7填充
-AES256Decrypt : (content str, key str -> v str) {
+AES256Decrypt : (content str, key str -> v str, success bool) {
     SHA512 : SHA512Managed{}
     HashKey : SHA512.ComputeHash(key.to_bytes())
     SHA512.Clear()
@@ -55,9 +55,9 @@ AES256Decrypt : (content str, key str -> v str) {
     ! {
         CryptoTransform : AES.CreateDecryptor()
         ResultArray : CryptoTransform.TransformFinalBlock(ValueByte, 0, ValueByte.Length)
-        <- ResultArray.to_str()
+        <- ResultArray.to_str(), true
     } e {
-        <- content
+        <- content, false
     }
 }
 

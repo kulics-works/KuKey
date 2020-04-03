@@ -12,7 +12,7 @@ DefaultEncryptService : (password str->$) {
         <- AES256Encrypt(v, _MasterPassword)
     }
     # 解密
-    Decrypt : (v str -> v str) {
+    Decrypt : (v str -> v str, b bool) {
         <- AES256Decrypt(v, _MasterPassword)
     }
     # 生成密码

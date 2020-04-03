@@ -11,8 +11,8 @@ DeleteRecordModel : BaseModel & $(me) {
     . Encrypt : (encryptor IEncryptService->v any) {
         <- me
     }
-    . Decrypt : (encryptor IEncryptService->v any) {
-        <- me
+    . Decrypt : (encryptor IEncryptService->v any, b bool) {
+        <- me, true
     }
 } & (id str->$) {
     Id = id

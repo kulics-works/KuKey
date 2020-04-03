@@ -34,17 +34,21 @@ KeyModel : BaseModel & $(me) {
             UpdateAt = UpdateAt
         }
     }
-    . Decrypt : (encryptor IEncryptService->v any) {
-        <- KeyModel{
-            Id = Id
-            Name = encryptor.Decrypt(Name)
-            Account = encryptor.Decrypt(Account)
-            Password = encryptor.Decrypt(Password)
-            URL = encryptor.Decrypt(URL)
-            Note = encryptor.Decrypt(Note)
-            Version = Version
-            CreateAt = CreateAt
-            UpdateAt = UpdateAt
+    . Decrypt : (encryptor IEncryptService->v any, b bool) {
+        name, success : encryptor.Decrypt(Name)
+        ? success {
+            <- KeyModel{
+                Id = Id
+                Name = name
+                Account = encryptor.Decrypt(Account).v
+                Password = encryptor.Decrypt(Password).v
+                URL = encryptor.Decrypt(URL).v
+                Note = encryptor.Decrypt(Note).v
+                Version = Version
+                CreateAt = CreateAt
+                UpdateAt = UpdateAt
+            }, true
         }
+        <- nil, false
     }
 }

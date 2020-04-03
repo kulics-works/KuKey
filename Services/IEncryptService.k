@@ -6,7 +6,7 @@ IEncryptService : $$ {
     # 加密
     Encrypt (v str -> v str) 
     # 解密
-    Decrypt (v str -> v str)
+    Decrypt (v str -> v str, b bool)
     # 生成密码
     GeneratePassword (lv PasswordLevel, len int->v str)
 }
