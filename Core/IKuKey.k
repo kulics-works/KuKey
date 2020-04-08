@@ -1,5 +1,6 @@
 Kulics.KuKey.Core . {
     System
+    System.Linq
     
     Kulics.KuKey.Models
     Kulics.KuKey.Services
@@ -12,8 +13,13 @@ IKuKey : $$ {
     [Update (T BaseModel)] (item T ->>)
     [Delete (T BaseModel)] (id str ->>)
     [Query (T BaseModel)] (id str ->> r ?T)
-    [QueryAll (T BaseModel)] (match (T->bool) ->> @ r T)
+    [LINQ T] (query (ICoreContext->T) ->r T)
     Export (->>text str)
     Import (text str->>)
     GeneratePassword (lv PasswordLevel, len int->v str)
+}
+
+ICoreContext : IDataContext & $$ {
+    [Set (T BaseModel)] (-> r [IQueryable T])
+    [Decrypt (T BaseModel)] (item T->r T, b bool)
 }

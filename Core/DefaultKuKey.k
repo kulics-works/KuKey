@@ -1,5 +1,6 @@
 Kulics.KuKey.Core . {
     System
+    System.Linq
 
     Newtonsoft.Json
     
@@ -10,111 +11,108 @@ Kulics.KuKey.Core . {
 
 # 主程序
 DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服务
-    _DataStoreService = DefaultDataStoreService(databasePath)
-    _EncryptService = DefaultEncryptService(masterPassword)
+    _DataStoreService = SQLiteDataStoreService(databasePath)
+    _EncryptService = AESEncryptService(masterPassword)
 } & (dataSrv IDataStoreService, encryptSrv IEncryptService->$) {   # 使用自定义服务
     _DataStoreService = dataSrv
     _EncryptService = encryptSrv
-} & IKuKey & $ {
+} & IKuKey & $ (me) {
     _DataStoreService IDataStoreService     # 存储服务
     _EncryptService IEncryptService         # 加密服务
-    # 解密后的数据集，使用类型作为键，值为类型列表
-    <get;set>
-    _Dataset! : [Type]any{}
-    # 检查数据集
-    [_CheckDataset (T BaseModel)] : (->>) {
-        ? ~_Dataset.has_key(typeof(T)) {
-            _Dataset.add(typeof(T), []T{})
-            @ v : << _DataStoreService.[QueryAllAsync T]{i->true}.. {
-                item, success : v.Decrypt(_EncryptService)
-                ? success {
-                    (_Dataset[typeof(T)] []T!).add(item T!)
-                }
-            }
-        }
-    }
-    # 导入
-    [_Import (T BaseModel)] : (item T ->>) {
-        dataset : _Dataset[typeof(T)] []T!
-        data : dataset.find_first{i->i.Id==item.Id}
-        ? data >< nil {
-            ? data.UpdateAt < item.UpdateAt {
-                dataset.update({i->i.Id==item.Id}, item)
-                << _DataStoreService.UpdateAsync(item.Encrypt(_EncryptService) T!)
-            }
-        } _ {
-            dataset.add(item)
-            << _DataStoreService.CreateAsync(item.Encrypt(_EncryptService) T!)
-        }
-    }
     # 实现接口
     UpdateEncryptService : (srv IEncryptService->) {
         _EncryptService = srv
-        # 重置数据
-        _Dataset = [Type]any{}
     }
 
     [Create (T BaseModel)] : (item T ->>id str) {
-        << [_CheckDataset T]()
         item.Id = Guid.NewGuid().ToString()
         time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
         item.CreateAt = time
         item.UpdateAt = time
-        (_Dataset[typeof(T)] []T!).add(item)
         << _DataStoreService.CreateAsync(item.Encrypt(_EncryptService) T!)
         <- item.Id
     }
 
     [Update (T BaseModel)] : (item T ->>) {
-        << [_CheckDataset T]()
         time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
         item.UpdateAt = time
-        (_Dataset[typeof(T)] []T!).update({i->i.Id==item.Id}, item)
         << _DataStoreService.UpdateAsync(item.Encrypt(_EncryptService) T!)
     }
 
     [Delete (T BaseModel)] : (id str ->>) {
-        << [_CheckDataset T]()
-        (_Dataset[typeof(T)] []T!).remove_all{i->i.Id==id}
         << _DataStoreService.[DeleteAsync T](id)
     }
 
     [Query (T BaseModel)] : (id str ->> r ?T) {
-        << [_CheckDataset T]()
-        <- (_Dataset[typeof(T)] []T!).find_first{i->i.Id==id}
+        item : << _DataStoreService.[QueryAsync T](id)
+        ? item >< nil {
+            decryptitem, success : Decrypt(item)
+            ? success {
+                <- decryptitem
+            }
+        }
+        <- nil
     }
 
-    [QueryAll (T BaseModel)] : (match (T->bool) ->> @ r T) {
-        << [_CheckDataset T]()
-        <- (_Dataset[typeof(T)] []T!).find_all(match)
+    [LINQ T] : (query (ICoreContext->T) -> r T) {
+        <- _DataStoreService.LINQ{ ctx ->
+            <- query(LinqContext(ctx, _EncryptService))
+        }
+    }
+
+    [Decrypt (T BaseModel)] : (item T->r T, b bool) {
+        r, b : item.Decrypt(_EncryptService)
+        <- r T!, b
     }
 
     Export : (->>text str) {
-        keys : (<< _DataStoreService.[QueryAllAsync KeyModel]{i->true}).to_list()
-        deletes : @ v : << _DataStoreService.[QueryAllAsync DeleteRecordModel]{i->true}.. -> {
-            v.Id
-        }
-        <- JsonConvert.SerializeObject(KuKeyFormat{
+        <- _DataStoreService.LINQ{ ctx -> 
+            keys : ctx.[Set KeyModel]().to_list()
+            deletes : @ v : ctx.[Set DeleteRecordModel]().. -> {
+                v.Id
+            }
+            prompts : _DataStoreService.LINQ{ctx->ctx.[Set PasswordPromptModel]().to_list()}
+            prompt : ""
+            ? prompts.len >< 0 {
+                prompt = prompts[0].Content
+            }
+            <- JsonConvert.SerializeObject(KuKeyFormat{
                 Key = keys
                 Delete = deletes
+                Prompt = prompt
             })
+        }
+    }
+
+    # 导入
+    [_Import (T BaseModel)] : (item T ->>) {
+        data : << _DataStoreService.[QueryAsync T](item.Id)
+        ? data >< nil {
+            ? data.UpdateAt < item.UpdateAt {
+                << _DataStoreService.UpdateAsync(item)
+            }
+        } _ {
+            << _DataStoreService.CreateAsync(item)
+        }
     }
 
     Import : (text str->>) {
         source : JsonConvert.[DeserializeObject KuKeyFormat](text)
         # 逐条导入数据
-        << [_CheckDataset KeyModel]()
         @ v : source.Key.. {
             << _Import(v)
         }
         # 逐条删除数据
-        << [_CheckDataset DeleteRecordModel]()
-        keys : _Dataset[typeof(KeyModel)] []KeyModel!
         @ v : source.Delete.. {
-            ? keys.exists{i->i.Id==v} {
-                << [Delete KeyModel](v)
-            }
+            << _DataStoreService.[DeleteAsync KeyModel](v)
             << _Import(DeleteRecordModel(v))
+        }
+        # 重置提示
+        ? source.Prompt >< "" {
+            @ v : _DataStoreService.LINQ{ctx->ctx.[Set PasswordPromptModel]().to_list()}.. {
+                << _DataStoreService.[DeleteAsync PasswordPromptModel](v.Id)
+            }
+            << _Import(PasswordPromptModel{Id = Guid.NewGuid().ToString(); Content = source.Prompt})
         }
     }
 
@@ -126,9 +124,27 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
 KuKeyFormat : $ {
     Key         []KeyModel
     Delete      []str
+    Prompt      str
 }
 
-#:DefaultDataStoreService
-#:DefaultEncryptService
+LinqContext : ICoreContext & $ {
+    _DataContext IDataContext
+    _EncryptService IEncryptService 
+
+    [Set (T BaseModel)] : (-> r [IQueryable T]) {
+        <- _DataContext.[Set T]()
+    }
+
+    [Decrypt (T BaseModel)] : (item T->r T, b bool) {
+        r, b : item.Decrypt(_EncryptService)
+        <- r T!, b
+    }
+} & (ctx IDataContext, srv IEncryptService->$) {
+    _DataContext = ctx
+    _EncryptService = srv
+}
+
+#:SQLiteDataStoreService
+#:AESEncryptService
 #:DateTime
 #:DeleteRecordModel

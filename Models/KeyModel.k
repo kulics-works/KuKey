@@ -18,8 +18,6 @@ KeyModel : BaseModel & $(me) {
     URL! : ""
     <Column("note"); get; set>
     Note! : ""
-    <Column("version"); get; set>
-    Version! : 0
 
     . Encrypt : (encryptor IEncryptService->v any) {
         <- KeyModel{
@@ -29,7 +27,6 @@ KeyModel : BaseModel & $(me) {
             Password = encryptor.Encrypt(Password)
             URL = encryptor.Encrypt(URL)
             Note = encryptor.Encrypt(Note)
-            Version = Version
             CreateAt = CreateAt
             UpdateAt = UpdateAt
         }
@@ -44,7 +41,6 @@ KeyModel : BaseModel & $(me) {
                 Password = encryptor.Decrypt(Password).v
                 URL = encryptor.Decrypt(URL).v
                 Note = encryptor.Decrypt(Note).v
-                Version = Version
                 CreateAt = CreateAt
                 UpdateAt = UpdateAt
             }, true

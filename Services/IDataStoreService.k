@@ -1,5 +1,6 @@
 Kulics.KuKey.Services . {
     System
+    System.Linq
     
     Kulics.KuKey.Models
 }
@@ -9,5 +10,9 @@ IDataStoreService : $$ {
     [UpdateAsync (T BaseModel)] (item T ->>)
     [DeleteAsync (T BaseModel)] (id str ->>)
     [QueryAsync (T BaseModel)] (id str ->> r ?T)
-    [QueryAllAsync (T BaseModel)] (match (T->bool) ->> @ r T)
+    [LINQ T] (query (IDataContext->T) -> r T)
+}
+
+IDataContext : $$ {
+    [Set (T BaseModel)] (-> r [IQueryable T])
 }

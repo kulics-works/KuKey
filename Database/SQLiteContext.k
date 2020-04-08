@@ -41,11 +41,9 @@ SQLiteContext : DbContext & (path str->$) {
         =#
         # 通过反射，自动装载所有基础模型的子类
         @ t : Assembly.GetAssembly(typeof(BaseModel)).GetTypes().. {
-            ? t.IsClass {
-                # 是否子类
-                ? t.IsSubclassOf(typeof(BaseModel)) {
-                    modelBuilder.Entity(t)
-                }
+            # 是否子类
+            ? t.IsClass & t.IsSubclassOf(typeof(BaseModel))  {
+                modelBuilder.Entity(t)
             }
         }
     }

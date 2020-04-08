@@ -37,12 +37,26 @@ SQLiteDataStoreService : (path str->$) {
 
     [QueryAsync (T BaseModel)] : (id str ->> r ?T) {
         ! ctx : SQLiteContext(_Path)
-        <- ctx.[Set T]().First{i->i.Id==id}
+        items : (@ item : ctx.[Set T]().. -> where item.Id == id -> select item).to_list()
+        ? items.len >< 0 {
+            <- items[0]
+        }
+        <- nil
     }
 
-    [QueryAllAsync (T BaseModel)] : (match (T->bool) ->> @ r T) {
+    [LINQ T] : (query (IDataContext->T) -> r T) {
         ! ctx : SQLiteContext(_Path)
-        <- ctx.[Set T]().Where(match).to_list()
+        <- query(SQLiteDataContext(ctx))
     }
 }
+
+SQLiteDataContext : IDataContext & $ {
+    _ctx SQLiteContext
+    [Set (T BaseModel)] : (-> r [IQueryable T]) {
+        <- _ctx.[Set T]()
+    }
+} & (ctx SQLiteContext->$) {
+    _ctx = ctx
+}
+
 #:SQLiteContext

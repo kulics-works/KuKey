@@ -9,7 +9,7 @@ Kulics.KuKey.Services . {
 }
 # 内存 数据存储服务
 MemoryDataStoreService : (->$) {
-} & IDataStoreService & $ {
+} & IDataStoreService & IDataContext & $ (me) {
     # 内存数据集，使用类型作为键，值为类型列表
     <get;set>
     _Dataset! : [Type]any{}
@@ -35,11 +35,18 @@ MemoryDataStoreService : (->$) {
     }
 
     [QueryAsync (T BaseModel)] : (id str ->> r ?T) {
-        <- [_GetDataset T]().First{i->i.Id==id}
+        items : (@ item : [_GetDataset T]().. -> where item.Id == id -> select item).to_list()
+        ? items.len >< 0 {
+            <- items[0]
+        }
+        <- nil
     }
 
-    [QueryAllAsync (T BaseModel)] : (match (T->bool) ->> @ r T) {
-        <- [_GetDataset T]().Where(match)
+    [LINQ T] : (query (IDataContext-> T) -> r T) {
+        <- query(me)
+    }
+
+    [Set (T BaseModel)] : (-> r [IQueryable T]) {
+        <- [_GetDataset T]().AsQueryable() 
     }
 }
-#:SQLiteContext
