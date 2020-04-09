@@ -71,15 +71,9 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
             deletes : @ v : ctx.[Set DeleteRecordModel]().. -> {
                 v.Id
             }
-            prompts : _DataStoreService.LINQ{ctx->ctx.[Set PasswordPromptModel]().to_list()}
-            prompt : ""
-            ? prompts.len >< 0 {
-                prompt = prompts[0].Content
-            }
             <- JsonConvert.SerializeObject(KuKeyFormat{
                 Key = keys
                 Delete = deletes
-                Prompt = prompt
             })
         }
     }
@@ -107,13 +101,6 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
             << _DataStoreService.[DeleteAsync KeyModel](v)
             << _Import(DeleteRecordModel(v))
         }
-        # 重置提示
-        ? source.Prompt >< "" {
-            @ v : _DataStoreService.LINQ{ctx->ctx.[Set PasswordPromptModel]().to_list()}.. {
-                << _DataStoreService.[DeleteAsync PasswordPromptModel](v.Id)
-            }
-            << _Import(PasswordPromptModel{Id = Guid.NewGuid().ToString(); Content = source.Prompt})
-        }
     }
 
     GeneratePassword : (lv PasswordLevel, len int->v str) {
@@ -124,7 +111,6 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
 KuKeyFormat : $ {
     Key         []KeyModel
     Delete      []str
-    Prompt      str
 }
 
 LinqContext : ICoreContext & $ {
