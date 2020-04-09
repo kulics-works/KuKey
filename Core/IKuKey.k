@@ -16,7 +16,7 @@ IKuKey : $$ {
     [LINQ T] (query (ICoreContext->T) ->r T)
     Export (->>text str)
     Import (text str->>)
-    GeneratePassword (lv PasswordLevel, len int->v str)
+    GeneratePassword (len int, number bool, lower bool, upper bool, symbol bool->v str)
 }
 
 ICoreContext : IDataContext & $$ {

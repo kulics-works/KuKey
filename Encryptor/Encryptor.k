@@ -61,93 +61,17 @@ AES256Decrypt : (content str, key str -> v str, success bool) {
     }
 }
 
-# 生成数字密码
-GeneratePasswordNum : (len int -> v str) {
-    number : {"0"; "1"; "2"; "3"; "4"; "5"; "6"; "7"; "8"; "9"}
+Number :  "23456789"
+Lowercase : "abcdefghikjmnopqrstuvwxyz"
+Uppercase : "ABCDEFGHJKLMNPQRSTUVWXYZ"
+Symbol : "~!@#$%^&*()_-+={}:;<,>.?/\\"
 
-    rand : Random{}
+# 生成密码
+GeneratePasswordByPool : (len int, pool str -> v str) {
     password! : ""
-    @ i : 0 ~ len-1.. {
-        temp : number[rand.Next( number.len )]
-        password += temp
-    }
-    <- password
-}
-
-# 生成普通密码
-GeneratePasswordNormal : (len int -> v str) {
-    number : {"2"; "3"; "4"; "5"; "6"; "7"; "8"; "9"}
-    lowercase : {"a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"; "i"; "j"; "k"
-            "m"; "n"; "p"; "q"; "r"; "s"; "t"; "u"; "v"; "w"
-        "x"; "y"; "z"}
-
     rand : Random{}
-    password! : ""
     @ i : 0 ~ len-1.. {
-        temp! : ""
-        ? rand.Next( 2 ).. 0 {
-            temp = number[rand.Next( number.len )]
-        } 1 {
-            temp = lowercase[rand.Next( lowercase.len )]
-        }
-        password += temp
-    }
-    <- password
-}
-
-# 生成复杂密码
-GeneratePasswordComplex : (len int -> v str) {
-    number : {"2"; "3"; "4"; "5"; "6"; "7"; "8"; "9"}
-    lowercase : {"a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"; "i"; "j"
-            "m"; "n"; "p"; "q"; "r"; "s"; "t"; "u"; "v"; "w"
-        "x"; "y"; "z"}
-    uppercase : {"A"; "B"; "C"; "D"; "E"; "F"; "G"; "H"; "J"
-        "L"; "M"; "N"; "P"; "Q"; "R"; "S"; "T"; "U"; "V"; "W"
-        "X"; "Y"; "Z"}
-
-    rand : Random{}
-    password! : ""
-    @ i : 0 ~ len-1.. {
-        temp! : ""
-        ? rand.Next( 3 ).. 0 {
-            temp = number[rand.Next( number.len )]
-        } 1 {
-            temp = lowercase[rand.Next( lowercase.len )]
-        } 2 {
-            temp = uppercase[rand.Next( uppercase.len )]
-        }
-        password += temp
-    }
-    <- password
-}
-
-# 生成混合密码
-GeneratePasswordMix : (len int -> v str) {
-    number : {"2"; "3"; "4"; "5"; "6"; "7"; "8"; "9"}
-    lowercase : {"a"; "b"; "c"; "d"; "e"; "f"; "g"; "h"; "i"; "j"
-            "m"; "n"; "p"; "q"; "r"; "s"; "t"; "u"; "v"; "w"
-        "x"; "y"; "z"}
-    uppercase : {"A"; "B"; "C"; "D"; "E"; "F"; "G"; "H"; "J"
-        "L"; "M"; "N"; "P"; "Q"; "R"; "S"; "T"; "U"; "V"; "W"
-        "X"; "Y"; "Z"}
-    symbol : {"~"; "`"; "!"; "@"; "#"; "$"; "%"; "^"; "&"; "*"; "("
-        ")"; "_"; "-"; "+"; "="; "{"; "}"; "["; "]"; ":"; ";"
-        "<"; ","; ">"; "."; "?"; "/"; "\\"}
-
-    rand : Random{}
-    password! : ""
-    @ i : 0 ~ len-1.. {
-        temp! : ""
-        ? rand.Next( 4 ).. 0 {
-            temp = number[rand.Next( number.len )]
-        } 1 {
-            temp = lowercase[rand.Next( lowercase.len )]
-        } 2 {
-            temp = uppercase[rand.Next( uppercase.len )]
-        } 3 {
-            temp = symbol[rand.Next( symbol.len )]
-        }
-        password += temp
+        password += pool[rand.Next( pool.len() )]
     }
     <- password
 }

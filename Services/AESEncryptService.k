@@ -22,17 +22,55 @@ AESEncryptService : (password str->$) {
         <- v, true
     }
     # 生成密码
-    GeneratePassword : (lv PasswordLevel, len int->v str) {
-        <- ? lv.. -> PasswordLevel.Number {
-            GeneratePasswordNum(len)
-        } PasswordLevel.Normal {
-            GeneratePasswordNormal(len)
-        } PasswordLevel.Complex {
-            GeneratePasswordComplex(len)
-        } PasswordLevel.Mix {
-            GeneratePasswordMix(len)
-        } _ {
-            ""
+    GeneratePassword : (len int, number bool, lower bool, upper bool, symbol bool->v str) {
+        pool! : ""
+        count! : 0
+        ? number {
+            pool += Number
+            count += 1
         }
+        ? lower {
+            pool += Lowercase
+            count += 1
+        }
+        ? upper {
+            pool += Uppercase
+            count += 1
+        }
+        ? symbol {
+            pool += Symbol
+            count += 1
+        }
+        ? count.. 1 {
+            ? number {
+                pool += "01"
+            } lower {
+                pool += "l"
+            } upper {
+                pool += "IO"
+            } symbol {
+                pool += "|"
+            }
+        } 2 {
+            ? number & symbol {
+                pool += "01"
+            } lower & upper {
+                pool += "O"
+            } symbol & upper {
+                pool += "O"
+            } number & lower {
+                pool += "0"
+            }
+        }3 {
+            ? number & ~upper {
+                pool += "0"
+            } ~number & upper {
+                pool += "O"
+            }
+        }
+        ? pool == "" {
+            pool = "01"
+        }
+        <- GeneratePasswordByPool(len, pool)
     }
 }

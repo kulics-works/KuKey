@@ -103,8 +103,8 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
         }
     }
 
-    GeneratePassword : (lv PasswordLevel, len int->v str) {
-        <- _EncryptService.GeneratePassword(lv, len)
+    GeneratePassword : (len int, number bool, lower bool, upper bool, symbol bool->v str) {
+        <- _EncryptService.GeneratePassword(len, number, lower, upper, symbol)
     }
 }
 
