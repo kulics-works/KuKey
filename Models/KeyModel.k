@@ -14,6 +14,10 @@ KeyModel : BaseModel & $ me {
     Account! : ""
     <Column("password"); get; set>
     Password! : ""
+    <Column("sub_account"); get; set>
+    SubAccount! : ""
+    <Column("sub_password"); get; set>
+    SubPassword! : ""
     <Column("url"); get; set>
     URL! : ""
     <Column("note"); get; set>
@@ -25,6 +29,8 @@ KeyModel : BaseModel & $ me {
             Name = encryptor.Encrypt(Name)
             Account = encryptor.Encrypt(Account)
             Password = encryptor.Encrypt(Password)
+            SubAccount = encryptor.Encrypt(SubAccount)
+            SubPassword = encryptor.Encrypt(SubPassword)
             URL = encryptor.Encrypt(URL)
             Note = encryptor.Encrypt(Note)
             CreateAt = CreateAt
@@ -39,6 +45,8 @@ KeyModel : BaseModel & $ me {
                 Name = name
                 Account = encryptor.Decrypt(Account).v
                 Password = encryptor.Decrypt(Password).v
+                SubAccount = encryptor.Decrypt(SubAccount).v
+                SubPassword = encryptor.Decrypt(SubPassword).v
                 URL = encryptor.Decrypt(URL).v
                 Note = encryptor.Decrypt(Note).v
                 CreateAt = CreateAt
