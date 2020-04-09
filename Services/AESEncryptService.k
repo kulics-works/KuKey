@@ -10,7 +10,7 @@ AESEncryptService : (password str->$) {
     # 加密
     Encrypt : (v str -> v str) {
         ? v >< "" {
-            AES256Encrypt(v, _MasterPassword)
+            v = AES256Encrypt(v, _MasterPassword)
         }
         <- v
     }
