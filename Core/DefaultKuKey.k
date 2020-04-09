@@ -16,7 +16,7 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
 } & (dataSrv IDataStoreService, encryptSrv IEncryptService->$) {   # 使用自定义服务
     _DataStoreService = dataSrv
     _EncryptService = encryptSrv
-} & IKuKey & $ (me) {
+} & IKuKey & $ me {
     _DataStoreService IDataStoreService     # 存储服务
     _EncryptService IEncryptService         # 加密服务
     # 实现接口

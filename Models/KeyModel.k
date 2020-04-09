@@ -7,7 +7,7 @@ Kulics.KuKey.Models . {
 }
 
 <Table("key")>
-KeyModel : BaseModel & $(me) {
+KeyModel : BaseModel & $ me {
     <Column("name"); get; set>
     Name! : ""
     <Column("account"); get; set>

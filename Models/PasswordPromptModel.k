@@ -7,7 +7,7 @@ Kulics.KuKey.Models . {
 }
 # 记录已删除的条目
 <Table("safe_question")>
-PasswordPromptModel : BaseModel & $(me) {
+PasswordPromptModel : BaseModel & $ me {
     <Column("content"); get; set>
     Content! : ""
 

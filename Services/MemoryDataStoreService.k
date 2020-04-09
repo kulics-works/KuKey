@@ -9,7 +9,7 @@ Kulics.KuKey.Services . {
 }
 # 内存 数据存储服务
 MemoryDataStoreService : (->$) {
-} & IDataStoreService & IDataContext & $ (me) {
+} & IDataStoreService & IDataContext & $ me {
     # 内存数据集，使用类型作为键，值为类型列表
     <get;set>
     _Dataset! : [Type]any{}

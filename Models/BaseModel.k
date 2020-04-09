@@ -6,7 +6,7 @@ Kulics.KuKey.Models . {
     Kulics.KuKey.Services
 }
 
-BaseModel : $ (me) {
+BaseModel : $ me {
     # 主键
     <Key; Column("id"); get; set>
     Id! : ""
