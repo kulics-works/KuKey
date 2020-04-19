@@ -37,7 +37,7 @@ SQLiteDataStoreService : (path str->$) {
 
     [QueryAsync (T BaseModel)] : (id str ->> r ?T) {
         ! ctx : SQLiteContext(_Path)
-        items : (@ item : ctx.[Set T]().. -> where item.Id == id -> select item).to_list()
+        items : (@ item : ctx.[Set T]() -> where item.Id == id -> select item).to_list()
         ? items.len >< 0 {
             <- items[0]
         }

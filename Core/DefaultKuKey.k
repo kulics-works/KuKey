@@ -68,7 +68,7 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
     Export : (->>text str) {
         <- _DataStoreService.LINQ{ ctx -> 
             keys : ctx.[Set KeyModel]().to_list()
-            deletes : @ v : ctx.[Set DeleteRecordModel]().. -> {
+            deletes : @ v : ctx.[Set DeleteRecordModel]() -> {
                 v.Id
             }
             <- JsonConvert.SerializeObject(KuKeyFormat{
@@ -93,11 +93,11 @@ DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服
     Import : (text str->>) {
         source : JsonConvert.[DeserializeObject KuKeyFormat](text)
         # 逐条导入数据
-        @ v : source.Key.. {
+        @ v : source.Key {
             << _Import(v)
         }
         # 逐条删除数据
-        @ v : source.Delete.. {
+        @ v : source.Delete {
             << _DataStoreService.[DeleteAsync KeyModel](v)
             << _Import(DeleteRecordModel(v))
         }

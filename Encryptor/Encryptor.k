@@ -70,7 +70,7 @@ Symbol : "~!@#$%^&*()_-+={}:;<,>.?/\\"
 GeneratePasswordByPool : (len int, pool str -> v str) {
     password! : ""
     rand : Random{}
-    @ i : 0 ~ len-1.. {
+    @ i : 0 ~ len-1 {
         password += pool[rand.Next( pool.len() )]
     }
     <- password

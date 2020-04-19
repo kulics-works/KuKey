@@ -35,7 +35,7 @@ MemoryDataStoreService : (->$) {
     }
 
     [QueryAsync (T BaseModel)] : (id str ->> r ?T) {
-        items : (@ item : [_GetDataset T]().. -> where item.Id == id -> select item).to_list()
+        items : (@ item : [_GetDataset T]() -> where item.Id == id -> select item).to_list()
         ? items.len >< 0 {
             <- items[0]
         }

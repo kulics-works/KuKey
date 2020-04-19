@@ -41,7 +41,7 @@ AESEncryptService : (password str->$) {
             pool += Symbol
             count += 1
         }
-        ? count.. 1 {
+        ? count : 1 {
             ? number {
                 pool += "01"
             } lower {
