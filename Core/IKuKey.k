@@ -19,7 +19,7 @@ IKuKey : $$ {
     GeneratePassword (len int, number bool, lower bool, upper bool, symbol bool->v str)
 }
 
-ICoreContext : IDataContext & $$ {
+ICoreContext : IDataContext \/ $$ {
     [Set (T BaseModel)] (-> r [IQueryable T])
     [Decrypt (T BaseModel)] (item T->r T, b bool)
 }

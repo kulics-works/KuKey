@@ -8,9 +8,9 @@ Kulics.KuKey.Services . {
     Kulics.KuKey.Databases
 }
 # SQLite 数据存储服务
-SQLiteDataStoreService : (path str->$) {
+SQLiteDataStoreService : IDataStoreService \/ (path str->$) {
     _Path = path
-} & IDataStoreService & $ {
+} \/ $ {
     _Path str
 
     [CreateAsync (T BaseModel)] : (item T ->>) {
@@ -50,12 +50,12 @@ SQLiteDataStoreService : (path str->$) {
     }
 }
 
-SQLiteDataContext : IDataContext & $ {
+SQLiteDataContext : IDataContext \/ $ {
     _ctx SQLiteContext
     [Set (T BaseModel)] : (-> r [IQueryable T]) {
         <- _ctx.[Set T]()
     }
-} & (ctx SQLiteContext->$) {
+} \/ (ctx SQLiteContext->$) {
     _ctx = ctx
 }
 

@@ -15,11 +15,11 @@ Kulics.KuKey.Databases . {
 }
 # sqlite上下文
 # 必须由外部传入路径
-SQLiteContext : DbContext & (path str->$) {
+SQLiteContext : DbContext \/ (path str->$) {
     _DatabasePath = path
     Database.EnsureCreated()
     Database.Migrate()
-} & $ {
+} \/ $ {
     _DatabasePath str
 
     . _ OnConfiguring : (optionsBuilder DbContextOptionsBuilder ->) {

@@ -7,13 +7,13 @@ Kulics.KuKey.Models . {
 }
 # 记录已删除的条目
 <Table("delete_record")>
-DeleteRecordModel : BaseModel & $ me {
+DeleteRecordModel : BaseModel \/ $ me {
     . Encrypt : (encryptor IEncryptService->v any) {
         <- me
     }
     . Decrypt : (encryptor IEncryptService->v any, b bool) {
         <- me, true
     }
-} & (id str->$) {
+} \/ (id str->$) {
     Id = id
 }

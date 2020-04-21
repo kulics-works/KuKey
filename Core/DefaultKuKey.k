@@ -10,13 +10,13 @@ Kulics.KuKey.Core . {
 }
 
 # 主程序
-DefaultKuKey : (databasePath str, masterPassword str->$) {     # 使用默认服务
+DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     # 使用默认服务
     _DataStoreService = SQLiteDataStoreService(databasePath)
     _EncryptService = AESEncryptService(masterPassword)
-} & (dataSrv IDataStoreService, encryptSrv IEncryptService->$) {   # 使用自定义服务
+} \/ (dataSrv IDataStoreService, encryptSrv IEncryptService->$) {   # 使用自定义服务
     _DataStoreService = dataSrv
     _EncryptService = encryptSrv
-} & IKuKey & $ me {
+} \/ $ me {
     _DataStoreService IDataStoreService     # 存储服务
     _EncryptService IEncryptService         # 加密服务
     # 实现接口
@@ -113,7 +113,7 @@ KuKeyFormat : $ {
     Delete      []str
 }
 
-LinqContext : ICoreContext & $ {
+LinqContext : ICoreContext \/ $ {
     _DataContext IDataContext
     _EncryptService IEncryptService 
 
@@ -125,7 +125,7 @@ LinqContext : ICoreContext & $ {
         r, b : item.Decrypt(_EncryptService)
         <- r T!, b
     }
-} & (ctx IDataContext, srv IEncryptService->$) {
+} \/ (ctx IDataContext, srv IEncryptService->$) {
     _DataContext = ctx
     _EncryptService = srv
 }

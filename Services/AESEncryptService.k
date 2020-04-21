@@ -2,9 +2,9 @@ Kulics.KuKey.Services . {
     _ : Kulics.KuKey.Encryptor.Encryptor_static
 }
 # 加密服务
-AESEncryptService : (password str->$) {
+AESEncryptService : IEncryptService \/ (password str->$) {
     _MasterPassword = password
-} & IEncryptService & $ {
+} \/ $ {
     # 主密码
     _MasterPassword str
     # 加密
