@@ -16,13 +16,13 @@ SQLiteDataStoreService : IDataStoreService \/ (path str->$) {
     [CreateAsync (T BaseModel)] : (item T ->>) {
         ! ctx : SQLiteContext(_Path)
         ctx.[Set T]().Add(item)
-        << ctx.SaveChangesAsync()
+        ctx.SaveChangesAsync..()
     }
 
     [UpdateAsync (T BaseModel)] : (item T ->>) {
         ! ctx : SQLiteContext(_Path)
         ctx.[Set T]().Update(item)
-        << ctx.SaveChangesAsync()
+        ctx.SaveChangesAsync..()
     }
 
     [DeleteAsync (T BaseModel)] : (id str ->>) {
@@ -31,7 +31,7 @@ SQLiteDataStoreService : IDataStoreService \/ (path str->$) {
         r : dbset.First{i->i.Id==id}
         ? r >< nil {
             dbset.Remove(r)
-            << ctx.SaveChangesAsync()
+            ctx.SaveChangesAsync..()
         }
     }
 
