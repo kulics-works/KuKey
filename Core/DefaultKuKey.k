@@ -29,22 +29,22 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     # 使�
         time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
         item.CreateAt = time
         item.UpdateAt = time
-        _DataStoreService.CreateAsync..(item.Encrypt(_EncryptService) T!)
+        _DataStoreService.CreateAsync~>(item.Encrypt(_EncryptService) T!)
         <- item.Id
     }
 
     [Update (T BaseModel)] : (item T ->>) {
         time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
         item.UpdateAt = time
-        _DataStoreService.UpdateAsync..(item.Encrypt(_EncryptService) T!)
+        _DataStoreService.UpdateAsync~>(item.Encrypt(_EncryptService) T!)
     }
 
     [Delete (T BaseModel)] : (id str ->>) {
-        _DataStoreService.[DeleteAsync T]..(id)
+        _DataStoreService.[DeleteAsync T]~>(id)
     }
 
     [Query (T BaseModel)] : (id str ->> r ?T) {
-        item : _DataStoreService.[QueryAsync T]..(id)
+        item : _DataStoreService.[QueryAsync T]~>(id)
         ? item >< nil {
             decryptitem, success : Decrypt(item)
             ? success {
@@ -80,13 +80,13 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     # 使�
 
     # 导入
     [_Import (T BaseModel)] : (item T ->>) {
-        data : _DataStoreService.[QueryAsync T]..(item.Id)
+        data : _DataStoreService.[QueryAsync T]~>(item.Id)
         ? data >< nil {
             ? data.UpdateAt < item.UpdateAt {
-                _DataStoreService.UpdateAsync..(item)
+                _DataStoreService.UpdateAsync~>(item)
             }
         } _ {
-            _DataStoreService.CreateAsync..(item)
+            _DataStoreService.CreateAsync~>(item)
         }
     }
 
@@ -94,12 +94,12 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     # 使�
         source : JsonConvert.[DeserializeObject KuKeyFormat](text)
         # 逐条导入数据
         @ v : source.Key {
-            _Import..(v)
+            _Import~>(v)
         }
         # 逐条删除数据
         @ v : source.Delete {
-            _DataStoreService.[DeleteAsync KeyModel]..(v)
-            _Import..(DeleteRecordModel(v))
+            _DataStoreService.[DeleteAsync KeyModel]~>(v)
+            _Import~>(DeleteRecordModel(v))
         }
     }
 
