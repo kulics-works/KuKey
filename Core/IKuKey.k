@@ -6,7 +6,7 @@ Kulics.KuKey.Core . {
     Kulics.KuKey.Services
 }
 
-# 核心接口
+# "核心接口"
 IKuKey : $$ {
     UpdateEncryptService (srv IEncryptService->)
     [Create (T BaseModel)] (item T ->>id str)

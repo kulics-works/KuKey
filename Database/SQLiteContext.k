@@ -13,8 +13,8 @@ Kulics.KuKey.Databases . {
 
     Kulics.KuKey.Models
 }
-# sqlite上下文
-# 必须由外部传入路径
+# "sqlite上下文"
+# "必须由外部传入路径"
 SQLiteContext : DbContext \/ (path str->$) {
     _DatabasePath = path
     Database.EnsureCreated()
@@ -24,7 +24,7 @@ SQLiteContext : DbContext \/ (path str->$) {
 
     . _ OnConfiguring : (optionsBuilder DbContextOptionsBuilder ->) {
         optionsBuilder.UseSqlite("Filename=${_DatabasePath}")
-        # optionsBuilder.EnableSensitiveDataLogging()
+        #: optionsBuilder.EnableSensitiveDataLogging()
     }
 
     . _ OnModelCreating : (modelBuilder ModelBuilder ->) {
@@ -39,9 +39,9 @@ SQLiteContext : DbContext \/ (path str->$) {
             }
         }
         =#
-        # 通过反射，自动装载所有基础模型的子类
+        # "通过反射，自动装载所有基础模型的子类"
         @ t : Assembly.GetAssembly(typeof(BaseModel)).GetTypes() {
-            # 是否子类
+            # "是否子类"
             ? t.IsClass & t.IsSubclassOf(typeof(BaseModel))  {
                 modelBuilder.Entity(t)
             }

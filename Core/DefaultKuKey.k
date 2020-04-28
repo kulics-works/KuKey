@@ -9,17 +9,19 @@ Kulics.KuKey.Core . {
     Kulics.KuKey.Services
 }
 
-# 主程序
-DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     # 使用默认服务
+# "主程序"
+DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     #: 使用默认服务
     _DataStoreService = SQLiteDataStoreService(databasePath)
     _EncryptService = AESEncryptService(masterPassword)
-} \/ (dataSrv IDataStoreService, encryptSrv IEncryptService->$) {   # 使用自定义服务
+} \/ (dataSrv IDataStoreService, encryptSrv IEncryptService->$) {   #: 使用自定义服务
     _DataStoreService = dataSrv
     _EncryptService = encryptSrv
 } \/ $ me {
-    _DataStoreService IDataStoreService     # 存储服务
-    _EncryptService IEncryptService         # 加密服务
-    # 实现接口
+    # "存储服务"
+    _DataStoreService IDataStoreService     
+    # "加密服务"
+    _EncryptService IEncryptService         
+    # "实现接口"
     UpdateEncryptService : (srv IEncryptService->) {
         _EncryptService = srv
     }
@@ -66,7 +68,7 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     # 使�
     }
 
     Export : (->>text str) {
-        <- _DataStoreService.LINQ{ ctx -> 
+        <<- _DataStoreService.LINQ{ ctx -> 
             keys : ctx.[Set KeyModel]().to_list()
             deletes : @ v : ctx.[Set DeleteRecordModel]() -> {
                 v.Id
@@ -78,7 +80,7 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     # 使�
         }
     }
 
-    # 导入
+    # "导入"
     [_Import (T BaseModel)] : (item T ->>) {
         data : _DataStoreService.[QueryAsync T]~>(item.Id)
         ? data >< nil {
@@ -92,11 +94,11 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     # 使�
 
     Import : (text str->>) {
         source : JsonConvert.[DeserializeObject KuKeyFormat](text)
-        # 逐条导入数据
+        # "逐条导入数据"
         @ v : source.Key {
             _Import~>(v)
         }
-        # 逐条删除数据
+        # "逐条删除数据"
         @ v : source.Delete {
             _DataStoreService.[DeleteAsync KeyModel]~>(v)
             _Import~>(DeleteRecordModel(v))
@@ -130,7 +132,7 @@ LinqContext : ICoreContext \/ $ {
     _EncryptService = srv
 }
 
-#:SQLiteDataStoreService
-#:AESEncryptService
-#:DateTime
-#:DeleteRecordModel
+##SQLiteDataStoreService
+##AESEncryptService
+##DateTime
+##DeleteRecordModel

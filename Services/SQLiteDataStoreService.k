@@ -7,7 +7,7 @@ Kulics.KuKey.Services . {
     Kulics.KuKey.Models
     Kulics.KuKey.Databases
 }
-# SQLite 数据存储服务
+# "SQLite 数据存储服务"
 SQLiteDataStoreService : IDataStoreService \/ (path str->$) {
     _Path = path
 } \/ $ {
@@ -39,7 +39,7 @@ SQLiteDataStoreService : IDataStoreService \/ (path str->$) {
         ! ctx : SQLiteContext(_Path)
         items : (@ item : ctx.[Set T]() -> where item.Id == id -> select item).to_list()
         ? items.len >< 0 {
-            <- items[0]
+            <<- items[0]
         }
         <- nil
     }
@@ -59,4 +59,4 @@ SQLiteDataContext : IDataContext \/ $ {
     _ctx = ctx
 }
 
-#:SQLiteContext
+##SQLiteContext

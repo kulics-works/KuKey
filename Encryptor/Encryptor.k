@@ -4,8 +4,8 @@ Kulics.KuKey.Encryptor . {
     System.Text
 }
 
-# 散列
-# 使用 SHA512，转成16进制输出
+# "散列"
+# "使用 SHA512，转成16进制输出"
 SHA512Hash : (content str -> v str) {
     SHA512 : SHA512Managed{}
     HashContent : SHA512.ComputeHash(content.to_bytes())
@@ -13,9 +13,9 @@ SHA512Hash : (content str -> v str) {
     <- HashContent.to_hex()
 }
 
-# 加密
-# 将key散列，拆成前后两部分用于AES256的key和iv，最后输出base64
-# AES256，CBC模式，PKCS7填充
+# "加密"
+# "将key散列，拆成前后两部分用于AES256的key和iv，最后输出base64"
+# "AES256，CBC模式，PKCS7填充"
 AES256Encrypt : (content str, key str -> v str) {
     SHA512 : SHA512Managed{}
     HashKey : SHA512.ComputeHash(key.to_bytes())
@@ -35,9 +35,9 @@ AES256Encrypt : (content str, key str -> v str) {
     <- ResultArray.to_base64_str()
 }
 
-# 解密
-# 将key散列，拆成前后两部分用于AES256的key和iv，最后输出base64
-# AES256，CBC模式，PKCS7填充
+# "解密"
+# "将key散列，拆成前后两部分用于AES256的key和iv，最后输出base64"
+# "AES256，CBC模式，PKCS7填充"
 AES256Decrypt : (content str, key str -> v str, success bool) {
     SHA512 : SHA512Managed{}
     HashKey : SHA512.ComputeHash(key.to_bytes())
@@ -66,7 +66,7 @@ Lowercase : "abcdefghikjmnopqrstuvwxyz"
 Uppercase : "ABCDEFGHJKLMNPQRSTUVWXYZ"
 Symbol : "~!@#$%^&*()_-+={}:;<,>.?/\\"
 
-# 生成密码
+# "生成密码"
 GeneratePasswordByPool : (len int, pool str -> v str) {
     password! : ""
     rand : Random{}

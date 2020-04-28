@@ -6,21 +6,21 @@ Kulics.KuKey.Models . {
     Kulics.KuKey.Services
 }
 
-<Table("key")>
+#Table("key")
 KeyModel : BaseModel \/ $ me {
-    <Column("name"); get; set>
+    #Column("name") #get #set
     Name! : ""
-    <Column("account"); get; set>
+    #Column("account") #get #set
     Account! : ""
-    <Column("password"); get; set>
+    #Column("password") #get #set
     Password! : ""
-    <Column("sub_account"); get; set>
+    #Column("sub_account") #get #set
     SubAccount! : ""
-    <Column("sub_password"); get; set>
+    #Column("sub_password") #get #set
     SubPassword! : ""
-    <Column("url"); get; set>
+    #Column("url") #get #set
     URL! : ""
-    <Column("note"); get; set>
+    #Column("note") #get #set
     Note! : ""
 
     . Encrypt : (encryptor IEncryptService->v any) {

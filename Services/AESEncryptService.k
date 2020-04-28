@@ -1,27 +1,27 @@
 Kulics.KuKey.Services . {
     _ : Kulics.KuKey.Encryptor.Encryptor_static
 }
-# 加密服务
+# "加密服务"
 AESEncryptService : IEncryptService \/ (password str->$) {
     _MasterPassword = password
 } \/ $ {
-    # 主密码
+    # "主密码"
     _MasterPassword str
-    # 加密
+    # "加密"
     Encrypt : (v str -> v str) {
         ? v >< "" {
             v = AES256Encrypt(v, _MasterPassword)
         }
         <- v
     }
-    # 解密
+    # "解密"
     Decrypt : (v str -> v str, b bool) {
         ? v >< "" {
             <- AES256Decrypt(v, _MasterPassword)
         }
         <- v, true
     }
-    # 生成密码
+    # "生成密码"
     GeneratePassword : (len int, number bool, lower bool, upper bool, symbol bool->v str) {
         pool! : ""
         count! : 0
