@@ -14,39 +14,44 @@ SQLiteDataStoreService : IDataStoreService \/ (path str->$) {
     _Path str
 
     [CreateAsync (T BaseModel)] : (item T ->>) {
-        ! ctx : SQLiteContext(_Path)
-        ctx.[Set T]().Add(item)
-        ctx.SaveChangesAsync~>()
-    }
-
-    [UpdateAsync (T BaseModel)] : (item T ->>) {
-        ! ctx : SQLiteContext(_Path)
-        ctx.[Set T]().Update(item)
-        ctx.SaveChangesAsync~>()
-    }
-
-    [DeleteAsync (T BaseModel)] : (id str ->>) {
-        ! ctx : SQLiteContext(_Path)
-        dbset : ctx.[Set T]()
-        r : dbset.First{i->i.Id==id}
-        ? r >< nil {
-            dbset.Remove(r)
+        ! ctx : SQLiteContext(_Path) {
+            ctx.[Set T]().Add(item)
             ctx.SaveChangesAsync~>()
         }
     }
 
-    [QueryAsync (T BaseModel)] : (id str ->> r ?T) {
-        ! ctx : SQLiteContext(_Path)
-        items : (@ item : ctx.[Set T]() -> where item.Id == id -> select item).to_list()
-        ? items.len >< 0 {
-            <<- items[0]
+    [UpdateAsync (T BaseModel)] : (item T ->>) {
+        ! ctx : SQLiteContext(_Path) {
+            ctx.[Set T]().Update(item)
+            ctx.SaveChangesAsync~>()
         }
-        <- nil
+    }
+
+    [DeleteAsync (T BaseModel)] : (id str ->>) {
+        ! ctx : SQLiteContext(_Path) {
+            dbset : ctx.[Set T]()
+            r : dbset.First{i->i.Id==id}
+            ? r >< nil {
+                dbset.Remove(r)
+                ctx.SaveChangesAsync~>()
+            }
+        }
+    }
+
+    [QueryAsync (T BaseModel)] : (id str ->> r ?T) {
+        ! ctx : SQLiteContext(_Path) {
+            items : (@ item : ctx.[Set T]() -> where item.Id == id -> select item).to_list()
+            ? items.len >< 0 {
+                <<- items[0]
+            }
+            <- nil
+        }
     }
 
     [LINQ T] : (query (IDataContext->T) -> r T) {
-        ! ctx : SQLiteContext(_Path)
-        <- query(SQLiteDataContext(ctx))
+        ! ctx : SQLiteContext(_Path) {
+            <- query(SQLiteDataContext(ctx))
+        }
     }
 }
 

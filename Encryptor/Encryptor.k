@@ -29,10 +29,11 @@ AES256Encrypt : (content str, key str -> v str) {
         Key = KeyByte
         Mode = CipherMode.CBC
         Padding = PaddingMode.PKCS7
+    } {
+        CryptoTransform : AES.CreateEncryptor()
+        ResultArray : CryptoTransform.TransformFinalBlock(ValueByte, 0, ValueByte.Length)
+        <- ResultArray.to_base64_str()
     }
-    CryptoTransform : AES.CreateEncryptor()
-    ResultArray : CryptoTransform.TransformFinalBlock(ValueByte, 0, ValueByte.Length)
-    <- ResultArray.to_base64_str()
 }
 
 # "解密"
@@ -51,13 +52,14 @@ AES256Decrypt : (content str, key str -> v str, success bool) {
         Key = KeyByte
         Mode = CipherMode.CBC
         Padding = PaddingMode.PKCS7
-    }
-    ! {
-        CryptoTransform : AES.CreateDecryptor()
-        ResultArray : CryptoTransform.TransformFinalBlock(ValueByte, 0, ValueByte.Length)
-        <- ResultArray.to_str(), true
-    } e {
-        <- content, false
+    } {
+        ! {
+            CryptoTransform : AES.CreateDecryptor()
+            ResultArray : CryptoTransform.TransformFinalBlock(ValueByte, 0, ValueByte.Length)
+            <- ResultArray.to_str(), true
+        } e {
+            <- content, false
+        }
     }
 }
 
