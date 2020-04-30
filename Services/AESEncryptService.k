@@ -1,4 +1,6 @@
-Kulics.KuKey.Services . {
+<- Kulics.KuKey.Services
+
+-> {
     _ : Kulics.KuKey.Encryptor.Encryptor_static
 }
 # "加密服务"

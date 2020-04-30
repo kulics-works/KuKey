@@ -1,4 +1,6 @@
-Kulics.KuKey.Models . {
+<- Kulics.KuKey.Models
+
+-> {
     System
     System.ComponentModel.DataAnnotations
     System.ComponentModel.DataAnnotations.Schema

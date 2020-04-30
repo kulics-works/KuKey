@@ -1,4 +1,6 @@
-Kulics.KuKey.Core . {
+<- Kulics.KuKey.Core
+
+-> {
     System
     System.Linq
     
