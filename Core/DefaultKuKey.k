@@ -107,6 +107,25 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     #: 使�
         }
     }
 
+    FormatExport : (->>text str) {
+        <<- LINQ{ctx ->
+            keys : @ item : ctx.[Set KeyModel]() -> {
+                FormatKeyModel(ctx.Decrypt(item).r)
+            }
+            <- JsonConvert.SerializeObject(OpenFormat{
+                Key = keys
+            })
+        }
+    }
+
+    FormatImport : (text str->>) {
+        source : JsonConvert.[DeserializeObject OpenFormat](text)
+        # "逐条导入数据"
+        @ v : source.Key {
+            _Import~>(v.ToKeyModel())
+        }
+    }
+
     GeneratePassword : (len int, number bool, lower bool, upper bool, symbol bool->v str) {
         <- _EncryptService.GeneratePassword(len, number, lower, upper, symbol)
     }
@@ -115,6 +134,14 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     #: 使�
 KuKeyFormat : $ {
     Key         []KeyModel
     Delete      []str
+    Version : 1
+}
+
+OpenFormat : $ {
+    #JsonProperty("key")
+    Key []FormatKeyModel
+    #JsonProperty("version")
+    Version : 1
 }
 
 LinqContext : ICoreContext \/ $ {
@@ -138,3 +165,4 @@ LinqContext : ICoreContext \/ $ {
 ##AESEncryptService
 ##DateTime
 ##DeleteRecordModel
+##FormatKeyModel

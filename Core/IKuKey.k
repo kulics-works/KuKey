@@ -18,6 +18,8 @@ IKuKey : $$ {
     [LINQ T] (query (ICoreContext->T) ->r T)
     Export (->>text str)
     Import (text str->>)
+    FormatExport (->>text str)
+    FormatImport (text str->>)
     GeneratePassword (len int, number bool, lower bool, upper bool, symbol bool->v str)
 }
 
