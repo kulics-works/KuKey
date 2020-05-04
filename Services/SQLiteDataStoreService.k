@@ -32,7 +32,7 @@ SQLiteDataStoreService : IDataStoreService \/ (path str->$) {
     [DeleteAsync (T BaseModel)] : (id str ->>) {
         ! ctx : SQLiteContext(_Path) {
             dbset : ctx.[Set T]()
-            r : dbset.First{i->i.Id==id}
+            r : dbset.FirstOrDefault{i->i.Id==id}
             ? r >< nil {
                 dbset.Remove(r)
                 ctx.SaveChangesAsync~>()
