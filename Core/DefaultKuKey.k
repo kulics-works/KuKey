@@ -110,7 +110,7 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     #: 使�
     FormatExport : (->>text str) {
         <<- LINQ{ctx ->
             keys : @ item : ctx.[Set KeyModel]() -> {
-                FormatKeyModel(ctx.Decrypt(item).r)
+                FormatKeyModel{}.FromKeyModel(ctx.Decrypt(item).r)
             }
             <- JsonConvert.SerializeObject(OpenFormat{
                 Key = keys
@@ -118,11 +118,19 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     #: 使�
         }
     }
 
+    [_FormatImport (T BaseModel)] : (item T ->>) {
+        item.Id = Guid.NewGuid().ToString()
+        time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
+        item.CreateAt = time
+        item.UpdateAt = time
+        _DataStoreService.CreateAsync~>(item.Encrypt(_EncryptService) T!)
+    }
+
     FormatImport : (text str->>) {
         source : JsonConvert.[DeserializeObject OpenFormat](text)
         # "逐条导入数据"
         @ v : source.Key {
-            _Import~>(v.ToKeyModel())
+            _FormatImport~>(v.ToKeyModel())
         }
     }
 
@@ -165,4 +173,3 @@ LinqContext : ICoreContext \/ $ {
 ##AESEncryptService
 ##DateTime
 ##DeleteRecordModel
-##FormatKeyModel

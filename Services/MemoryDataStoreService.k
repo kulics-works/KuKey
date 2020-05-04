@@ -44,7 +44,7 @@ MemoryDataStoreService : IDataStoreService \/ IDataContext \/ (->$) {
         ? items.len >< 0 {
             <<- items[0]
         }
-        <- nil
+        <<- [empty ?T]()
     }
 
     [LINQ T] : (query (IDataContext-> T) -> r T) {

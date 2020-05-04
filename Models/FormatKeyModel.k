@@ -33,11 +33,14 @@ FormatKeyModel : $ me {
             Note = Note
         }
     }
-} \/ (v KeyModel->$) {
-    Name = v.Name
-    Account = v.Account
-    Password = v.Password
-    Password2 = v.SubPassword
-    URL = v.URL
-    Note = v.SubAccount + "\n" + v.Note
+
+    FromKeyModel : (v KeyModel->v FormatKeyModel) {
+        Name = v.Name
+        Account = v.Account
+        Password = v.Password
+        Password2 = v.SubPassword
+        URL = v.URL
+        Note = v.SubAccount + "\n" + v.Note
+        <- me
+    }
 }

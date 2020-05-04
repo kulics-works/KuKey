@@ -46,7 +46,7 @@ SQLiteDataStoreService : IDataStoreService \/ (path str->$) {
             ? items.len >< 0 {
                 <<- items[0]
             }
-            <- nil
+            <<- [empty ?T]()
         }
     }
 
