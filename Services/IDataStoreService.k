@@ -8,13 +8,17 @@
 }
 
 IDataStoreService : $$ {
-    [CreateAsync (T BaseModel)] (item T ->>)
-    [UpdateAsync (T BaseModel)] (item T ->>)
-    [DeleteAsync (T BaseModel)] (id str ->>)
-    [QueryAsync (T BaseModel)] (id str ->> r ?T)
-    [LINQ T] (query (IDataContext->T) -> r T)
+    QueryAsync (func (IQueryContext->>) ->>)
+    SaveAsync (func (ISaveContext->>) ->>)
 }
 
-IDataContext : $$ {
+IQueryContext : $$ {
     [Set (T BaseModel)] (-> r [IQueryable T])
+}
+
+ISaveContext : $$ {
+    [Set (T BaseModel)] (-> r [IQueryable T])
+    [Create (T BaseModel)] (item T ->)
+    [Update (T BaseModel)] (item T ->)
+    [Delete (T BaseModel)] (id str ->)
 }

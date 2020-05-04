@@ -11,11 +11,8 @@
 # "核心接口"
 IKuKey : $$ {
     UpdateEncryptService (srv IEncryptService->)
-    [Create (T BaseModel)] (item T ->>id str)
-    [Update (T BaseModel)] (item T ->>)
-    [Delete (T BaseModel)] (id str ->>)
-    [Query (T BaseModel)] (id str ->> r ?T)
-    [LINQ T] (query (ICoreContext->T) ->r T)
+    QueryAsync (func (ICoreQueryContext->>) ->>)
+    SaveAsync (func (ICoreSaveContext->>) ->>)
     Export (->>text str)
     Import (text str->>)
     FormatExport (->>text str)
@@ -23,7 +20,15 @@ IKuKey : $$ {
     GeneratePassword (len int, number bool, lower bool, upper bool, symbol bool->v str)
 }
 
-ICoreContext : IDataContext \/ $$ {
-    [Set (T BaseModel)] (-> r [IQueryable T])
+ICoreQueryContext : $$ {
     [Decrypt (T BaseModel)] (item T->r T, b bool)
+    [Set (T BaseModel)] (-> r [IQueryable T])
+}
+
+ICoreSaveContext : $$ {
+    [Decrypt (T BaseModel)] (item T->r T, b bool)
+    [Set (T BaseModel)] (-> r [IQueryable T])
+    [Create (T BaseModel)] (item T -> id str)
+    [Update (T BaseModel)] (item T ->)
+    [Delete (T BaseModel)] (id str ->)
 }

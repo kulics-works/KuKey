@@ -4,6 +4,8 @@
     System
     System.Linq
 
+    Microsoft.EntityFrameworkCore
+
     Newtonsoft.Json
     
     Kulics.KuKey.Models
@@ -28,109 +30,81 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     #: 使�
         _EncryptService = srv
     }
 
-    [Create (T BaseModel)] : (item T ->>id str) {
-        item.Id = Guid.NewGuid().ToString()
-        time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
-        item.CreateAt = time
-        item.UpdateAt = time
-        _DataStoreService.CreateAsync~>(item.Encrypt(_EncryptService) T!)
-        <- item.Id
-    }
-
-    [Update (T BaseModel)] : (item T ->>) {
-        time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
-        item.UpdateAt = time
-        _DataStoreService.UpdateAsync~>(item.Encrypt(_EncryptService) T!)
-    }
-
-    [Delete (T BaseModel)] : (id str ->>) {
-        _DataStoreService.[DeleteAsync T]~>(id)
-    }
-
-    [Query (T BaseModel)] : (id str ->> r ?T) {
-        item : _DataStoreService.[QueryAsync T]~>(id)
-        ? item >< nil {
-            decryptitem, success : Decrypt(item)
-            ? success {
-                <- decryptitem
-            }
-        }
-        <- nil
-    }
-
-    [LINQ T] : (query (ICoreContext->T) -> r T) {
-        <- _DataStoreService.LINQ{ ctx ->
-            <- query(LinqContext(ctx, _EncryptService))
+    QueryAsync : (func (ICoreQueryContext->>) ->>) {
+        _DataStoreService.QueryAsync~>{ ctx -> 
+            func~>(CoreQueryContext(ctx, _EncryptService))
         }
     }
 
-    [Decrypt (T BaseModel)] : (item T->r T, b bool) {
-        r, b : item.Decrypt(_EncryptService)
-        <- r T!, b
+    SaveAsync : (func (ICoreSaveContext->>) ->>) {
+        _DataStoreService.SaveAsync~>{ ctx -> 
+            func~>(CoreSaveContext(ctx, _EncryptService))
+        }
     }
 
     Export : (->>text str) {
-        <<- _DataStoreService.LINQ{ ctx -> 
+        text! : ""
+        QueryAsync~>{ ctx ->
             keys : ctx.[Set KeyModel]().to_list()
-            deletes : @ v : ctx.[Set DeleteRecordModel]() -> {
+            deletes : @ v : ctx.[Set DeleteRecordModel]().ToListAsync~>() -> {
                 v.Id
             }
-            <- JsonConvert.SerializeObject(KuKeyFormat{
+            text = JsonConvert.SerializeObject(KuKeyFormat{
                 Key = keys
                 Delete = deletes
             })
         }
+        <- text
     }
 
     # "导入"
-    [_Import (T BaseModel)] : (item T ->>) {
-        data : _DataStoreService.[QueryAsync T]~>(item.Id)
+    [_Import (T BaseModel)] : (ctx ICoreSaveContext, item T ->) {
+        data : ctx.[Set T]().FirstOrDefault{i->i.Id==item.Id}
         ? data >< nil {
             ? data.UpdateAt < item.UpdateAt {
-                _DataStoreService.UpdateAsync~>(item)
+                ctx.Update(item)
             }
         } _ {
-            _DataStoreService.CreateAsync~>(item)
+            ctx.Create(item)
         }
     }
 
     Import : (text str->>) {
-        source : JsonConvert.[DeserializeObject KuKeyFormat](text)
-        # "逐条导入数据"
-        @ v : source.Key {
-            _Import~>(v)
-        }
-        # "逐条删除数据"
-        @ v : source.Delete {
-            _DataStoreService.[DeleteAsync KeyModel]~>(v)
-            _Import~>(DeleteRecordModel(v))
+        SaveAsync~>{ ctx ->>
+            source : JsonConvert.[DeserializeObject KuKeyFormat](text)
+            # "逐条导入数据"
+            @ v : source.Key {
+                _Import(ctx, v)
+            }
+            # "逐条删除数据"
+            @ v : source.Delete {
+                ctx.[Delete KeyModel](v)
+                _Import(ctx, DeleteRecordModel(v))
+            }
         }
     }
 
     FormatExport : (->>text str) {
-        <<- LINQ{ctx ->
-            keys : @ item : ctx.[Set KeyModel]() -> {
-                FormatKeyModel{}.FromKeyModel(ctx.Decrypt(item).r)
+        text! : ""
+        QueryAsync~>{ ctx ->
+            keys : []FormatKeyModel{} 
+            @ item : ctx.[Set KeyModel]().ToListAsync~>() {
+                keys += FormatKeyModel{}.FromKeyModel(ctx.Decrypt(item).r)
             }
-            <- JsonConvert.SerializeObject(OpenFormat{
+            text = JsonConvert.SerializeObject(OpenFormat{
                 Key = keys
             })
         }
-    }
-
-    [_FormatImport (T BaseModel)] : (item T ->>) {
-        item.Id = Guid.NewGuid().ToString()
-        time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
-        item.CreateAt = time
-        item.UpdateAt = time
-        _DataStoreService.CreateAsync~>(item.Encrypt(_EncryptService) T!)
+        <- text
     }
 
     FormatImport : (text str->>) {
-        source : JsonConvert.[DeserializeObject OpenFormat](text)
-        # "逐条导入数据"
-        @ v : source.Key {
-            _FormatImport~>(v.ToKeyModel())
+        SaveAsync~>{ ctx ->>
+            source : JsonConvert.[DeserializeObject OpenFormat](text)
+            # "逐条导入数据"
+            @ v : source.Key {
+                ctx.Create(v.ToKeyModel())
+            }
         }
     }
 
@@ -152,8 +126,8 @@ OpenFormat : $ {
     Version : 1
 }
 
-LinqContext : ICoreContext \/ $ {
-    _DataContext IDataContext
+CoreQueryContext : ICoreQueryContext \/ $ {
+    _DataContext IQueryContext
     _EncryptService IEncryptService 
 
     [Set (T BaseModel)] : (-> r [IQueryable T]) {
@@ -164,7 +138,43 @@ LinqContext : ICoreContext \/ $ {
         r, b : item.Decrypt(_EncryptService)
         <- r T!, b
     }
-} \/ (ctx IDataContext, srv IEncryptService->$) {
+} \/ (ctx IQueryContext, srv IEncryptService->$) {
+    _DataContext = ctx
+    _EncryptService = srv
+}
+
+CoreSaveContext : ICoreSaveContext \/ $ {
+    _DataContext ISaveContext
+    _EncryptService IEncryptService
+
+    [Set (T BaseModel)] : (-> r [IQueryable T]) {
+        <- _DataContext.[Set T]()
+    }
+
+    [Decrypt (T BaseModel)] : (item T->r T, b bool) {
+        r, b : item.Decrypt(_EncryptService)
+        <- r T!, b
+    }
+
+    [Create (T BaseModel)] : (item T -> id str) {
+        item.Id = Guid.NewGuid().ToString()
+        time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
+        item.CreateAt = time
+        item.UpdateAt = time
+        _DataContext.Create(item.Encrypt(_EncryptService) T!)
+        <- item.Id
+    }
+
+    [Update (T BaseModel)] : (item T ->) {
+        time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
+        item.UpdateAt = time
+        _DataContext.Update(item.Encrypt(_EncryptService) T!)
+    }
+
+    [Delete (T BaseModel)] : (id str ->) {
+        _DataContext.[Delete T](id)
+    }
+} \/ (ctx ISaveContext, srv IEncryptService->$) {
     _DataContext = ctx
     _EncryptService = srv
 }
