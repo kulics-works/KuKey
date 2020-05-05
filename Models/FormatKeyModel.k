@@ -40,7 +40,10 @@ FormatKeyModel : $ me {
         Password = v.Password
         Password2 = v.SubPassword
         URL = v.URL
-        Note = v.SubAccount + "\n" + v.Note
+        ? v.SubAccount.Length > 0 {
+            Note = v.SubAccount + "\n"
+        }
+        Note += v.Note
         <- me
     }
 }
