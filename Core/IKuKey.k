@@ -11,6 +11,7 @@
 # "核心接口"
 IKuKey : $$ {
     UpdateEncryptService (srv IEncryptService->)
+    UpdateEncryptData (srv IEncryptService->>)
     QueryAsync (func (ICoreQueryContext->>) ->>)
     SaveAsync (func (ICoreSaveContext->>) ->>)
     Export (->>text str)

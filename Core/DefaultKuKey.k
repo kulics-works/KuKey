@@ -30,6 +30,24 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     #: ä½¿ç
         _EncryptService = srv
     }
 
+    UpdateEncryptData : (srv IEncryptService->>) {
+        keys : []KeyModel{}
+        _DataStoreService.QueryAsync~>{ ctx ->>
+            @ key : ctx.[Set KeyModel]() {
+                r, b : key.Decrypt(_EncryptService)
+                ? b {
+                    keys.add(r KeyModel!)
+                }
+            }
+        }
+        _DataStoreService.SaveAsync~>{ ctx ->> 
+            @ key : keys {
+                ctx.Update(key.Encrypt(srv) KeyModel!)
+            }
+        }
+        _EncryptService = srv
+    }
+
     QueryAsync : (func (ICoreQueryContext->>) ->>) {
         _DataStoreService.QueryAsync~>{ ctx -> 
             func~>(CoreQueryContext(ctx, _EncryptService))
