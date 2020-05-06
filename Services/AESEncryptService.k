@@ -11,14 +11,14 @@ AESEncryptService : IEncryptService \/ (password str->$) {
     _MasterPassword str
     # "加密"
     Encrypt : (v str -> v str) {
-        ? v >< "" {
+        ? v.Length > 0 {
             v = AES256Encrypt(v, _MasterPassword)
         }
         <- v
     }
     # "解密"
     Decrypt : (v str -> v str, b bool) {
-        ? v >< "" {
+        ? v.Length > 0 {
             <- AES256Decrypt(v, _MasterPassword)
         }
         <- v, true

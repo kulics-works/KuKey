@@ -23,6 +23,10 @@ SQLiteContext : DbContext \/ (path str->$) {
     Database.Migrate()
 } \/ $ {
     _DatabasePath str
+    #get #set
+    Key [DbSet KeyModel]
+    #get #set
+    DeleteRecord [DbSet DeleteRecordModel]
 
     . _ OnConfiguring : (optionsBuilder DbContextOptionsBuilder ->) {
         optionsBuilder.UseSqlite("Filename=${_DatabasePath}")
@@ -30,23 +34,5 @@ SQLiteContext : DbContext \/ (path str->$) {
     }
 
     . _ OnModelCreating : (modelBuilder ModelBuilder ->) {
-        #=
-        # 查找程序集的model接口，全部加载进映射
-        @ t : Assembly.GetAssembly([typeof Modeler]()).GetTypes() {
-            ? t.IsClass {
-                # 是否接口
-                ? t.GetInterfaces().Contains([typeof Modeler]()) {
-                    modelBuilder.Entity(t)
-                }
-            }
-        }
-        =#
-        # "通过反射，自动装载所有基础模型的子类"
-        @ t : Assembly.GetAssembly(typeof(BaseModel)).GetTypes() {
-            # "是否子类"
-            ? t.IsClass & t.IsSubclassOf(typeof(BaseModel))  {
-                modelBuilder.Entity(t)
-            }
-        }
     }
 }
