@@ -9,32 +9,33 @@
 # "散列"
 # "使用 SHA512，转成16进制输出"
 SHA512Hash : (content str -> v str) {
-    SHA512 : SHA512Managed{}
-    HashContent : SHA512.ComputeHash(content.to_bytes())
-    SHA512.Clear()
-    <- HashContent.to_hex()
+    ! hash : SHA512Managed{} {
+        result : hash.ComputeHash(content.to_bytes())
+        <- result.to_hex()
+    }
 }
 
 # "加密"
 # "将key散列，拆成前后两部分用于AES256的key和iv，最后输出base64"
 # "AES256，CBC模式，PKCS7填充"
 AES256Encrypt : (content str, key str -> v str) {
-    SHA512 : SHA512Managed{}
-    HashKey : SHA512.ComputeHash(key.to_bytes())
-    SHA512.Clear()
+    hashKey [,]byte
+    ! sha : SHA512Managed{} {
+        hashKey = sha.ComputeHash(key.to_bytes())
+    }
 
-    KeyByte : HashKey.sub_bytes(0, 32)
-    ValueByte : content.to_bytes()
-    IVByte : HashKey.sub_bytes(32, 16)
-    ! AES : RijndaelManaged{
-        IV = IVByte
-        Key = KeyByte
+    keyBytes : hashKey.sub_bytes(0, 32)
+    valueBytes : content.to_bytes()
+    ivBytes : hashKey.sub_bytes(32, 16)
+    ! aes : RijndaelManaged{
+        IV = ivBytes
+        Key = keyBytes
         Mode = CipherMode.CBC
         Padding = PaddingMode.PKCS7
     } {
-        CryptoTransform : AES.CreateEncryptor()
-        ResultArray : CryptoTransform.TransformFinalBlock(ValueByte, 0, ValueByte.Length)
-        <- ResultArray.to_base64_str()
+        cryptoTransform : aes.CreateEncryptor()
+        result : cryptoTransform.TransformFinalBlock(valueBytes, 0, valueBytes.Length)
+        <- result.to_base64_str()
     }
 }
 
@@ -42,23 +43,24 @@ AES256Encrypt : (content str, key str -> v str) {
 # "将key散列，拆成前后两部分用于AES256的key和iv，最后输出base64"
 # "AES256，CBC模式，PKCS7填充"
 AES256Decrypt : (content str, key str -> v str, success bool) {
-    SHA512 : SHA512Managed{}
-    HashKey : SHA512.ComputeHash(key.to_bytes())
-    SHA512.Clear()
+    hashKey [,]byte
+    ! sha : SHA512Managed{} {
+        hashKey = sha.ComputeHash(key.to_bytes())
+    }
 
-    KeyByte : HashKey.sub_bytes(0, 32)
-    ValueByte : content.to_bytes_by_base64()
-    IVByte : HashKey.sub_bytes(32, 16)
-    ! AES : RijndaelManaged{
-        IV = IVByte
-        Key = KeyByte
+    keyBytes : hashKey.sub_bytes(0, 32)
+    valueBytes : content.to_bytes_by_base64()
+    ivBytes : hashKey.sub_bytes(32, 16)
+    ! aes : RijndaelManaged{
+        IV = ivBytes
+        Key = keyBytes
         Mode = CipherMode.CBC
         Padding = PaddingMode.PKCS7
     } {
         ! {
-            CryptoTransform : AES.CreateDecryptor()
-            ResultArray : CryptoTransform.TransformFinalBlock(ValueByte, 0, ValueByte.Length)
-            <- ResultArray.to_str(), true
+            cryptoTransform : aes.CreateDecryptor()
+            result : cryptoTransform.TransformFinalBlock(valueBytes, 0, valueBytes.Length)
+            <- result.to_str(), true
         } e {
             <- content, false
         }
