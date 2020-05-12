@@ -7,11 +7,13 @@
 
     Kulics.KuKey.Services
 }
-# "记录已删除的条目"
-#Table("delete_record")
-DeleteRecordModel : BaseModel \/ $ me {
-    #Column("kind") #get #set
-    Kind DeleteKind
+
+#Table("key_map_tag")
+KeyMapTagModel : BaseModel \/ $ me {
+    #Column("key") #get #set
+    KeyId! : ""
+    #Column("tag") #get #set
+    TagId! : ""
 
     . Encrypt : (encryptor IEncryptService->v any) {
         <- me
@@ -19,12 +21,4 @@ DeleteRecordModel : BaseModel \/ $ me {
     . Decrypt : (encryptor IEncryptService->v any, b bool) {
         <- me, true
     }
-} \/ (id str->$) {
-    Id = id
-}
-
-DeleteKind : [:] {
-    Key
-    Tag
-    KeyMapTag
 }

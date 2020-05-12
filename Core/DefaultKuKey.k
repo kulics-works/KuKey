@@ -32,17 +32,27 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     #: 使�
 
     UpdateEncryptData : (srv IEncryptService->>) {
         keys : []KeyModel{}
+        tags : []TagModel{}
         _DataStoreService.QueryAsync~>{ ctx ->>
-            @ key : ctx.[Set KeyModel]() {
-                r, b : key.Decrypt(_EncryptService)
+            @ item : ctx.[Set KeyModel]() {
+                r, b : item.Decrypt(_EncryptService)
                 ? b {
                     keys.add(r KeyModel!)
                 }
             }
+            @ item : ctx.[Set TagModel]() {
+                r, b : item.Decrypt(_EncryptService)
+                ? b {
+                    tags.add(r TagModel!)
+                }
+            }
         }
         _DataStoreService.SaveAsync~>{ ctx ->> 
-            @ key : keys {
-                ctx.Update(key.Encrypt(srv) KeyModel!)
+            @ item : keys {
+                ctx.Update(item.Encrypt(srv) KeyModel!)
+            }
+            @ item : tags {
+                ctx.Update(item.Encrypt(srv) TagModel!)
             }
         }
         _EncryptService = srv
@@ -63,13 +73,11 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     #: 使�
     Export : (->>text str) {
         text! : ""
         QueryAsync~>{ ctx ->
-            keys : ctx.[Set KeyModel]().to_list()
-            deletes : @ v : ctx.[Set DeleteRecordModel]().ToListAsync~>() -> {
-                v.Id
-            }
             text = JsonConvert.SerializeObject(KuKeyFormat{
-                Key = keys
-                Delete = deletes
+                Key = ctx.[Set KeyModel]().to_list()
+                Tag = ctx.[Set TagModel]().to_list()
+                KeyMapTag = ctx.[Set KeyMapTagModel]().to_list()
+                Delete = ctx.[Set DeleteRecordModel]().to_list()
             })
         }
         <- text
@@ -94,10 +102,22 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     #: 使�
             @ v : source.Key {
                 _Import(ctx, v)
             }
+            @ v : source.Tag {
+                _Import(ctx, v)
+            }
+            @ v : source.KeyMapTag {
+                _Import(ctx, v)
+            }
             # "逐条删除数据"
             @ v : source.Delete {
-                ctx.[Delete KeyModel](v)
-                _Import(ctx, DeleteRecordModel(v))
+                ? v.Kind : DeleteKind.Key {
+                    ctx.[Delete KeyModel](v.Id)
+                } DeleteKind.Tag {
+                    ctx.[Delete TagModel](v.Id)
+                } DeleteKind.KeyMapTag {
+                    ctx.[Delete KeyMapTagModel](v.Id)
+                }
+                _Import(ctx, v)
             }
         }
     }
@@ -133,7 +153,9 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     #: 使�
 
 KuKeyFormat : $ {
     Key         []KeyModel
-    Delete      []str
+    Tag         []TagModel
+    KeyMapTag   []KeyMapTagModel
+    Delete      []DeleteRecordModel
     Version : 1
 }
 
