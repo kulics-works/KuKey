@@ -26,6 +26,10 @@ SQLiteContext : DbContext \/ (path str->$) {
     #get #set
     Key [DbSet KeyModel]
     #get #set
+    Tag [DbSet TagModel]
+    #get #set
+    KeyMapTag [DbSet KeyMapTagModel]
+    #get #set
     DeleteRecord [DbSet DeleteRecordModel]
 
     . _ OnConfiguring : (optionsBuilder DbContextOptionsBuilder ->) {

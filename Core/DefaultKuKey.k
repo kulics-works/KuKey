@@ -72,7 +72,7 @@ DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     #: ä½¿ç
 
     Export : (->>text str) {
         text! : ""
-        QueryAsync~>{ ctx ->
+        QueryAsync~>{ ctx ->>
             text = JsonConvert.SerializeObject(KuKeyFormat{
                 Key = ctx.[Set KeyModel]().to_list()
                 Tag = ctx.[Set TagModel]().to_list()

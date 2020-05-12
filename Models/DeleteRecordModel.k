@@ -19,8 +19,9 @@ DeleteRecordModel : BaseModel \/ $ me {
     . Decrypt : (encryptor IEncryptService->v any, b bool) {
         <- me, true
     }
-} \/ (id str->$) {
+} \/ (id str, kind DeleteKind->$) {
     Id = id
+    Kind = kind
 }
 
 DeleteKind : [:] {
