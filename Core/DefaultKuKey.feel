@@ -14,13 +14,16 @@
 }
 
 # "主程序"
-DefaultKuKey : IKuKey \/ (databasePath str, masterPassword str->$) {     #: 使用默认服务
+DefaultKuKey : (databasePath str, masterPassword str->$) {     #: 使用默认服务
     _DataStoreService = SQLiteDataStoreService(databasePath)
     _EncryptService = AESEncryptService(masterPassword)
-} \/ (dataSrv IDataStoreService, encryptSrv IEncryptService->$) {   #: 使用自定义服务
+}
+DefaultKuKey : (dataSrv IDataStoreService, encryptSrv IEncryptService->$) {   #: 使用自定义服务
     _DataStoreService = dataSrv
     _EncryptService = encryptSrv
-} \/ $ me {
+}
+DefaultKuKey : $ me {
+    IKuKey
     # "存储服务"
     _DataStoreService IDataStoreService     
     # "加密服务"
@@ -166,7 +169,8 @@ OpenFormat : $ {
     Version : 1
 }
 
-CoreQueryContext : ICoreQueryContext \/ $ {
+CoreQueryContext : $ {
+    ICoreQueryContext
     _DataContext IQueryContext
     _EncryptService IEncryptService 
 
@@ -178,12 +182,14 @@ CoreQueryContext : ICoreQueryContext \/ $ {
         r, b : item.Decrypt(_EncryptService)
         <- r T!, b
     }
-} \/ (ctx IQueryContext, srv IEncryptService->$) {
+}
+CoreQueryContext : (ctx IQueryContext, srv IEncryptService->$) {
     _DataContext = ctx
     _EncryptService = srv
 }
 
-CoreSaveContext : ICoreSaveContext \/ $ {
+CoreSaveContext : $ {
+    ICoreSaveContext
     _DataContext ISaveContext
     _EncryptService IEncryptService
 
@@ -214,7 +220,8 @@ CoreSaveContext : ICoreSaveContext \/ $ {
     [Delete (T BaseModel)] : (id str ->) {
         _DataContext.[Delete T](id)
     }
-} \/ (ctx ISaveContext, srv IEncryptService->$) {
+}
+CoreSaveContext : (ctx ISaveContext, srv IEncryptService->$) {
     _DataContext = ctx
     _EncryptService = srv
 }

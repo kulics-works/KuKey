@@ -9,7 +9,8 @@
 }
 
 #Table("key")
-KeyModel : BaseModel \/ $ me {
+KeyModel : $ me {
+    BaseModel
     #Column("name") #get #set
     Name! : ""
     #Column("account") #get #set

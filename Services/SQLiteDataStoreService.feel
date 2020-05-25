@@ -10,9 +10,11 @@
     Kulics.KuKey.Databases
 }
 # "SQLite 数据存储服务"
-SQLiteDataStoreService : IDataStoreService \/ (path str->$) {
+SQLiteDataStoreService : (path str->$) {
     _Path = path
-} \/ $ {
+}
+SQLiteDataStoreService : $ {
+    IDataStoreService
     _Path str
 
     QueryAsync : (func (IQueryContext->>) ->>) {
@@ -29,7 +31,9 @@ SQLiteDataStoreService : IDataStoreService \/ (path str->$) {
     }
 }
 
-SQLiteDataContext : IQueryContext \/ ISaveContext \/ $ {
+SQLiteDataContext : $ {
+    IQueryContext
+    ISaveContext
     _ctx SQLiteContext
 
     [Set (T BaseModel)] : (-> r [IQueryable T]) {
@@ -49,7 +53,8 @@ SQLiteDataContext : IQueryContext \/ ISaveContext \/ $ {
             _ctx.[Set T]().Remove(item)
         }
     }
-} \/ (ctx SQLiteContext->$) {
+}
+SQLiteDataContext : (ctx SQLiteContext->$) {
     _ctx = ctx
 }
 

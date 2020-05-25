@@ -9,7 +9,8 @@
 }
 
 #Table("key_map_tag")
-KeyMapTagModel : BaseModel \/ $ me {
+KeyMapTagModel : $ me {
+    BaseModel
     #Column("key") #get #set
     KeyId! : ""
     #Column("tag") #get #set

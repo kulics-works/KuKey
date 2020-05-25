@@ -3,3 +3,4 @@
 obj
 *.cs
 bin
+.DS_Store

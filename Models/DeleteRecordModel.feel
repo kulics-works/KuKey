@@ -9,7 +9,8 @@
 }
 # "记录已删除的条目"
 #Table("delete_record")
-DeleteRecordModel : BaseModel \/ $ me {
+DeleteRecordModel : $ me {
+    BaseModel
     #Column("kind") #get #set
     Kind DeleteKind
 
@@ -19,7 +20,8 @@ DeleteRecordModel : BaseModel \/ $ me {
     . Decrypt : (encryptor IEncryptService->v any, b bool) {
         <- me, true
     }
-} \/ (id str, kind DeleteKind->$) {
+}
+DeleteRecordModel : (id str, kind DeleteKind->$) {
     Id = id
     Kind = kind
 }

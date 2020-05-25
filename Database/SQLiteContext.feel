@@ -17,11 +17,13 @@
 }
 # "sqlite上下文"
 # "必须由外部传入路径"
-SQLiteContext : DbContext \/ (path str->$) {
+SQLiteContext : (path str->$) {
     _DatabasePath = path
     Database.EnsureCreated()
     Database.Migrate()
-} \/ $ {
+}
+SQLiteContext : $ {
+    DbContext
     _DatabasePath str
     #get #set
     Key [DbSet KeyModel]

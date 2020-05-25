@@ -9,7 +9,8 @@
 }
 
 #Table("tag")
-TagModel : BaseModel \/ $ me {
+TagModel : $ me {
+    BaseModel
     #Column("name") #get #set
     Name! : ""
 
