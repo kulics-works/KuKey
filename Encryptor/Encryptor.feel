@@ -19,7 +19,7 @@ SHA512Hash : (content str -> v str) {
 # "将key散列，拆成前后两部分用于AES256的key和iv，最后输出base64"
 # "AES256，CBC模式，PKCS7填充"
 AES256Encrypt : (content str, key str -> v str) {
-    hashKey [,]byte
+    hashKey [array byte]
     ! sha : SHA512Managed{} {
         hashKey = sha.ComputeHash(key.to_bytes())
     }
@@ -43,7 +43,7 @@ AES256Encrypt : (content str, key str -> v str) {
 # "将key散列，拆成前后两部分用于AES256的key和iv，最后输出base64"
 # "AES256，CBC模式，PKCS7填充"
 AES256Decrypt : (content str, key str -> v str, success bool) {
-    hashKey [,]byte
+    hashKey [array byte]
     ! sha : SHA512Managed{} {
         hashKey = sha.ComputeHash(key.to_bytes())
     }

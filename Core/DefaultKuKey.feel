@@ -34,8 +34,8 @@ DefaultKuKey : $ me {
     }
 
     UpdateEncryptData : (srv IEncryptService->>) {
-        keys : []KeyModel{}
-        tags : []TagModel{}
+        keys : [list KeyModel]{}
+        tags : [list TagModel]{}
         _DataStoreService.QueryAsync~>{ ctx ->>
             @ item : ctx.[Set KeyModel]() {
                 r, b : item.Decrypt(_EncryptService)
@@ -128,7 +128,7 @@ DefaultKuKey : $ me {
     FormatExport : (->>text str) {
         text! : ""
         QueryAsync~>{ ctx ->
-            keys : []FormatKeyModel{} 
+            keys : [list FormatKeyModel]{} 
             @ item : ctx.[Set KeyModel]().ToListAsync~>() {
                 keys += FormatKeyModel{}.FromKeyModel(ctx.Decrypt(item).r)
             }
@@ -155,16 +155,16 @@ DefaultKuKey : $ me {
 }
 
 KuKeyFormat : $ {
-    Key         []KeyModel
-    Tag         []TagModel
-    KeyMapTag   []KeyMapTagModel
-    Delete      []DeleteRecordModel
+    Key         [list KeyModel]
+    Tag         [list TagModel]
+    KeyMapTag   [list KeyMapTagModel]
+    Delete      [list DeleteRecordModel]
     Version : 1
 }
 
 OpenFormat : $ {
     #JsonProperty("key")
-    Key []FormatKeyModel
+    Key [list FormatKeyModel]
     #JsonProperty("version")
     Version : 1
 }

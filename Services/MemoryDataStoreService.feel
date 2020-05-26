@@ -18,14 +18,14 @@ MemoryDataStoreService : $ me {
     ISaveContext
     # "内存数据集，使用类型作为键，值为类型列表"
     #get #set
-    _Dataset! : [Type]any{}
+    _Dataset! : [dict Type any]{}
 
     # "获取某个数据集"
-    [_GetDataset (T BaseModel)] : (->r []T) {
+    [_GetDataset (T BaseModel)] : (->r [list T]) {
         ? ~_Dataset.has_key(typeof(T)) {
-            _Dataset.add(typeof(T), []T{})
+            _Dataset.add(typeof(T), [list T]{})
         }
-        <- _Dataset[typeof(T)] []T! 
+        <- _Dataset[typeof(T)] [list T]! 
     }
 
     QueryAsync : (func (IQueryContext->>) ->>) {
