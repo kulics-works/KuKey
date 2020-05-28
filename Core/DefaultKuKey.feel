@@ -80,7 +80,6 @@ DefaultKuKey : $ me {
                 Key = ctx.[Set KeyModel]().to_list()
                 Tag = ctx.[Set TagModel]().to_list()
                 KeyMapTag = ctx.[Set KeyMapTagModel]().to_list()
-                Delete = ctx.[Set DeleteRecordModel]().to_list()
             })
         }
         <- text
@@ -109,17 +108,6 @@ DefaultKuKey : $ me {
                 _Import(ctx, v)
             }
             @ v : source.KeyMapTag {
-                _Import(ctx, v)
-            }
-            # "逐条删除数据"
-            @ v : source.Delete {
-                ? v.Kind : DeleteKind.Key {
-                    ctx.[Delete KeyModel](v.Id)
-                } DeleteKind.Tag {
-                    ctx.[Delete TagModel](v.Id)
-                } DeleteKind.KeyMapTag {
-                    ctx.[Delete KeyMapTagModel](v.Id)
-                }
                 _Import(ctx, v)
             }
         }
@@ -158,7 +146,6 @@ KuKeyFormat : $ {
     Key         [list KeyModel]
     Tag         [list TagModel]
     KeyMapTag   [list KeyMapTagModel]
-    Delete      [list DeleteRecordModel]
     Version : 1
 }
 
@@ -229,4 +216,3 @@ CoreSaveContext : (ctx ISaveContext, srv IEncryptService->$) {
 ##SQLiteDataStoreService
 ##AESEncryptService
 ##DateTime
-##DeleteRecordModel
