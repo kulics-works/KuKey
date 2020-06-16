@@ -21,7 +21,7 @@ MemoryDataStoreService : $ me {
     _Dataset! : [dict Type any]{}
 
     # "获取某个数据集"
-    [_GetDataset (T BaseModel)] : (->r [list T]) {
+    [_GetDataset T:BaseModel] : (->r [list T]) {
         ? ~_Dataset.has_key(typeof(T)) {
             _Dataset.add(typeof(T), [list T]{})
         }
@@ -36,20 +36,20 @@ MemoryDataStoreService : $ me {
         func~>(me)
     }
 
-    [Set (T BaseModel)] : (-> r [IQueryable T]) {
+    [Set T:BaseModel] : (-> r [IQueryable T]) {
         <- [_GetDataset T]().AsQueryable() 
 
     }
 
-    [Create (T BaseModel)] : (item T ->) {
+    [Create T:BaseModel] : (item T ->) {
         [_GetDataset T]().add(item)
     }
 
-    [Update (T BaseModel)] : (item T ->) {
+    [Update T:BaseModel] : (item T ->) {
         [_GetDataset T]().update({i->i.Id==item.Id}, item)
     }
 
-    [Delete (T BaseModel)] : (id str ->) {
+    [Delete T:BaseModel] : (id str ->) {
         [_GetDataset T]().remove_all{i->i.Id==id}
     }
 }

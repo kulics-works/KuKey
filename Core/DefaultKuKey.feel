@@ -25,9 +25,9 @@ DefaultKuKey : (dataSrv IDataStoreService, encryptSrv IEncryptService->$) {   #:
 DefaultKuKey : $ me {
     IKuKey
     # "存储服务"
-    _DataStoreService IDataStoreService     
+    _DataStoreService IDataStoreService
     # "加密服务"
-    _EncryptService IEncryptService         
+    _EncryptService IEncryptService
     # "实现接口"
     UpdateEncryptService : (srv IEncryptService->) {
         _EncryptService = srv
@@ -86,7 +86,7 @@ DefaultKuKey : $ me {
     }
 
     # "导入"
-    [_Import (T BaseModel)] : (ctx ICoreSaveContext, item T ->) {
+    [_Import T:BaseModel] : (ctx ICoreSaveContext, item T ->) {
         data : ctx.[Set T]().FirstOrDefault{i->i.Id==item.Id}
         ? data >< nil {
             ? data.UpdateAt < item.UpdateAt {
@@ -161,11 +161,11 @@ CoreQueryContext : $ {
     _DataContext IQueryContext
     _EncryptService IEncryptService 
 
-    [Set (T BaseModel)] : (-> r [IQueryable T]) {
+    [Set T:BaseModel] : (-> r [IQueryable T]) {
         <- _DataContext.[Set T]()
     }
 
-    [Decrypt (T BaseModel)] : (item T->r T, b bool) {
+    [Decrypt T:BaseModel] : (item T->r T, b bool) {
         r, b : item.Decrypt(_EncryptService)
         <- r T!, b
     }
@@ -180,16 +180,16 @@ CoreSaveContext : $ {
     _DataContext ISaveContext
     _EncryptService IEncryptService
 
-    [Set (T BaseModel)] : (-> r [IQueryable T]) {
+    [Set T:BaseModel] : (-> r [IQueryable T]) {
         <- _DataContext.[Set T]()
     }
 
-    [Decrypt (T BaseModel)] : (item T->r T, b bool) {
+    [Decrypt T:BaseModel] : (item T->r T, b bool) {
         r, b : item.Decrypt(_EncryptService)
         <- r T!, b
     }
 
-    [Create (T BaseModel)] : (item T -> id str) {
+    [Create T:BaseModel] : (item T -> id str) {
         item.Id = Guid.NewGuid().ToString()
         time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
         item.CreateAt = time
@@ -198,13 +198,13 @@ CoreSaveContext : $ {
         <- item.Id
     }
 
-    [Update (T BaseModel)] : (item T ->) {
+    [Update T:BaseModel] : (item T ->) {
         time : (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 int!
         item.UpdateAt = time
         _DataContext.Update(item.Encrypt(_EncryptService) T!)
     }
 
-    [Delete (T BaseModel)] : (id str ->) {
+    [Delete T:BaseModel] : (id str ->) {
         _DataContext.[Delete T](id)
     }
 }

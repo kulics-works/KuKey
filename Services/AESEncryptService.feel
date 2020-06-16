@@ -65,7 +65,7 @@ AESEncryptService : $ {
             } number & lower {
                 pool += "0"
             }
-        }3 {
+        } 3 {
             ? number & ~upper {
                 pool += "0"
             } ~number & upper {

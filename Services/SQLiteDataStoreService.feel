@@ -36,19 +36,19 @@ SQLiteDataContext : $ {
     ISaveContext
     _ctx SQLiteContext
 
-    [Set (T BaseModel)] : (-> r [IQueryable T]) {
+    [Set T:BaseModel] : (-> r [IQueryable T]) {
         <- _ctx.[Set T]()
     }
 
-    [Create (T BaseModel)] : (item T ->) {
+    [Create T:BaseModel] : (item T ->) {
         _ctx.[Set T]().Add(item)
     }
 
-    [Update (T BaseModel)] : (item T ->) {
+    [Update T:BaseModel] : (item T ->) {
         _ctx.[Set T]().Update(item)
     }
 
-    [Delete (T BaseModel)] : (id str ->) {
+    [Delete T:BaseModel] : (id str ->) {
         @ item : _ctx.[Set T]().Where{i->i.Id==id} {
             _ctx.[Set T]().Remove(item)
         }
