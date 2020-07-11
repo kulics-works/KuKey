@@ -9,12 +9,12 @@
 }
 
 #Table("tag")
-TagModel : $ me {
+TagModel := $ me {
     BaseModel
     #Column("name") #get #set
-    Name! : ""
+    !Name := ""
 
-    . Encrypt : (encryptor IEncryptService->v any) {
+    . Encrypt := (encryptor: IEncryptService->v: any) {
         <- TagModel{
             Id = Id
             Name = encryptor.Encrypt(Name)
@@ -22,8 +22,8 @@ TagModel : $ me {
             UpdateAt = UpdateAt
         }
     }
-    . Decrypt : (encryptor IEncryptService->v any, b bool) {
-        name, success : encryptor.Decrypt(Name)
+    . Decrypt := (encryptor: IEncryptService->v: any, b: bool) {
+        name, success := encryptor.Decrypt(Name)
         ? success {
             <- TagModel{
                 Id = Id

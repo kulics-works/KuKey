@@ -9,21 +9,21 @@
     Kulics.KuKey.Services
 }
 
-FormatKeyModel : $ me {
+FormatKeyModel := $ me {
     #get #set #JsonProperty("name")
-    Name! : ""
+    !Name := ""
     #get #set #JsonProperty("account")
-    Account! : ""
+    !Account := ""
     #get #set #JsonProperty("password")
-    Password! : ""
+    !Password := ""
     #get #set #JsonProperty("password2")
-    Password2! : ""
+    !Password2 := ""
     #get #set #JsonProperty("url")
-    URL! : ""
+    !URL := ""
     #get #set #JsonProperty("note")
-    Note! : ""
+    !Note := ""
 
-    ToKeyModel : (->v KeyModel) {
+    ToKeyModel := (->v: KeyModel) {
         <- KeyModel{
             Name = Name
             Account = Account
@@ -34,7 +34,7 @@ FormatKeyModel : $ me {
         }
     }
 
-    FromKeyModel : (v KeyModel->v FormatKeyModel) {
+    FromKeyModel := (v: KeyModel->v: FormatKeyModel) {
         Name = v.Name
         Account = v.Account
         Password = v.Password

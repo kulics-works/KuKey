@@ -17,26 +17,26 @@
 }
 # "sqlite上下文"
 # "必须由外部传入路径"
-SQLiteContext : (path str->$) {
+SQLiteContext := (path: str->$) {
     _DatabasePath = path
     Database.EnsureCreated()
     Database.Migrate()
 }
-SQLiteContext : $ {
+SQLiteContext := $ {
     DbContext
-    _DatabasePath str
+    _DatabasePath: str
     #get #set
-    Key [DbSet KeyModel]
+    Key: [DbSet KeyModel]
     #get #set
-    Tag [DbSet TagModel]
+    Tag: [DbSet TagModel]
     #get #set
-    KeyMapTag [DbSet KeyMapTagModel]
+    KeyMapTag: [DbSet KeyMapTagModel]
 
-    . _ OnConfiguring : (optionsBuilder DbContextOptionsBuilder ->) {
+    . _ OnConfiguring := (optionsBuilder: DbContextOptionsBuilder ->) {
         optionsBuilder.UseSqlite("Filename=${_DatabasePath}")
         #: optionsBuilder.EnableSensitiveDataLogging()
     }
 
-    . _ OnModelCreating : (modelBuilder ModelBuilder ->) {
+    . _ OnModelCreating := (modelBuilder: ModelBuilder ->) {
     }
 }

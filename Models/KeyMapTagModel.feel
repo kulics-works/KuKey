@@ -9,17 +9,17 @@
 }
 
 #Table("key_map_tag")
-KeyMapTagModel : $ me {
+KeyMapTagModel := $ me {
     BaseModel
     #Column("key") #get #set
-    KeyId! : ""
+    !KeyId := ""
     #Column("tag") #get #set
-    TagId! : ""
+    !TagId := ""
 
-    . Encrypt : (encryptor IEncryptService->v any) {
+    . Encrypt := (encryptor: IEncryptService->v: any) {
         <- me
     }
-    . Decrypt : (encryptor IEncryptService->v any, b bool) {
+    . Decrypt := (encryptor: IEncryptService->v: any, b: bool) {
         <- me, true
     }
 }

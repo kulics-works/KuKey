@@ -9,24 +9,24 @@
 }
 
 #Table("key")
-KeyModel : $ me {
+KeyModel := $ me {
     BaseModel
     #Column("name") #get #set
-    Name! : ""
+    !Name := ""
     #Column("account") #get #set
-    Account! : ""
+    !Account := ""
     #Column("password") #get #set
-    Password! : ""
+    !Password := ""
     #Column("sub_account") #get #set
-    SubAccount! : ""
+    !SubAccount := ""
     #Column("sub_password") #get #set
-    SubPassword! : ""
+    !SubPassword := ""
     #Column("url") #get #set
-    URL! : ""
+    !URL := ""
     #Column("note") #get #set
-    Note! : ""
+    !Note := ""
 
-    . Encrypt : (encryptor IEncryptService->v any) {
+    . Encrypt := (encryptor: IEncryptService->v: any) {
         <- KeyModel{
             Id = Id
             Name = encryptor.Encrypt(Name)
@@ -40,8 +40,8 @@ KeyModel : $ me {
             UpdateAt = UpdateAt
         }
     }
-    . Decrypt : (encryptor IEncryptService->v any, b bool) {
-        name, success : encryptor.Decrypt(Name)
+    . Decrypt := (encryptor: IEncryptService->v: any, b: bool) {
+        name, success := encryptor.Decrypt(Name)
         ? success {
             <- KeyModel{
                 Id = Id

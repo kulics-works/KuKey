@@ -8,9 +8,9 @@
 
 # "散列"
 # "使用 SHA512，转成16进制输出"
-SHA512Hash : (content str -> v str) {
-    ! hash : SHA512Managed{} {
-        result : hash.ComputeHash(content.to_bytes())
+SHA512Hash := (content: str -> v: str) {
+    -> hash := SHA512Managed{} {
+        result := hash.ComputeHash(content.to_bytes())
         <- result.to_hex()
     }
 }
@@ -18,23 +18,23 @@ SHA512Hash : (content str -> v str) {
 # "加密"
 # "将key散列，拆成前后两部分用于AES256的key和iv，最后输出base64"
 # "AES256，CBC模式，PKCS7填充"
-AES256Encrypt : (content str, key str -> v str) {
-    hashKey [array byte]
-    ! sha : SHA512Managed{} {
+AES256Encrypt := (content: str, key: str -> v: str) {
+    hashKey: [array byte]
+    -> sha := SHA512Managed{} {
         hashKey = sha.ComputeHash(key.to_bytes())
     }
 
-    keyBytes : hashKey.sub_bytes(0, 32)
-    valueBytes : content.to_bytes()
-    ivBytes : hashKey.sub_bytes(32, 16)
-    ! aes : RijndaelManaged{
+    keyBytes := hashKey.sub_bytes(0, 32)
+    valueBytes := content.to_bytes()
+    ivBytes := hashKey.sub_bytes(32, 16)
+    -> aes := RijndaelManaged{
         IV = ivBytes
         Key = keyBytes
         Mode = CipherMode.CBC
         Padding = PaddingMode.PKCS7
     } {
-        cryptoTransform : aes.CreateEncryptor()
-        result : cryptoTransform.TransformFinalBlock(valueBytes, 0, valueBytes.Length)
+        cryptoTransform := aes.CreateEncryptor()
+        result := cryptoTransform.TransformFinalBlock(valueBytes, 0, valueBytes.Length)
         <- result.to_base64_str()
     }
 }
@@ -42,24 +42,24 @@ AES256Encrypt : (content str, key str -> v str) {
 # "解密"
 # "将key散列，拆成前后两部分用于AES256的key和iv，最后输出base64"
 # "AES256，CBC模式，PKCS7填充"
-AES256Decrypt : (content str, key str -> v str, success bool) {
-    hashKey [array byte]
-    ! sha : SHA512Managed{} {
+AES256Decrypt := (content: str, key: str -> v: str, success: bool) {
+    hashKey: [array byte]
+    -> sha := SHA512Managed{} {
         hashKey = sha.ComputeHash(key.to_bytes())
     }
 
-    keyBytes : hashKey.sub_bytes(0, 32)
-    valueBytes : content.to_bytes_by_base64()
-    ivBytes : hashKey.sub_bytes(32, 16)
-    ! aes : RijndaelManaged{
+    keyBytes := hashKey.sub_bytes(0, 32)
+    valueBytes := content.to_bytes_by_base64()
+    ivBytes := hashKey.sub_bytes(32, 16)
+    -> aes := RijndaelManaged{
         IV = ivBytes
         Key = keyBytes
         Mode = CipherMode.CBC
         Padding = PaddingMode.PKCS7
     } {
         ! {
-            cryptoTransform : aes.CreateDecryptor()
-            result : cryptoTransform.TransformFinalBlock(valueBytes, 0, valueBytes.Length)
+            cryptoTransform := aes.CreateDecryptor()
+            result := cryptoTransform.TransformFinalBlock(valueBytes, 0, valueBytes.Length)
             <- result.to_str(), true
         } e {
             <- content, false
@@ -67,16 +67,16 @@ AES256Decrypt : (content str, key str -> v str, success bool) {
     }
 }
 
-Number :  "23456789"
-Lowercase : "abcdefghikjmnopqrstuvwxyz"
-Uppercase : "ABCDEFGHJKLMNPQRSTUVWXYZ"
-Symbol : "~!@#$%^&*()_-+={}:;<,>.?/\\"
+Number :=  "23456789"
+Lowercase := "abcdefghikjmnopqrstuvwxyz"
+Uppercase := "ABCDEFGHJKLMNPQRSTUVWXYZ"
+Symbol := "~!@#$%^&*()_-+={}:;<,>.?/\\"
 
 # "生成密码"
-GeneratePasswordByPool : (len int, pool str -> v str) {
-    password! : ""
-    rand : Random{}
-    @ i : 0 .. len-1 {
+GeneratePasswordByPool := (len: int, pool: str -> v: str) {
+    !password := ""
+    rand := Random{}
+    @ i := 0 .. len-1 {
         password += pool[rand.Next( pool.len() )]
     }
     <- password

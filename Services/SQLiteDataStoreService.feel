@@ -10,51 +10,51 @@
     Kulics.KuKey.Databases
 }
 # "SQLite 数据存储服务"
-SQLiteDataStoreService : (path str->$) {
+SQLiteDataStoreService := (path: str->$) {
     _Path = path
 }
-SQLiteDataStoreService : $ {
+SQLiteDataStoreService := $ {
     IDataStoreService
-    _Path str
+    _Path: str
 
-    QueryAsync : (func (IQueryContext->>) ->>) {
-        ! ctx : SQLiteContext(_Path) {
+    QueryAsync := (func: (IQueryContext->>) ->>) {
+        -> ctx := SQLiteContext(_Path) {
             func~>(SQLiteDataContext(ctx))
         }
     }
 
-    SaveAsync : (func (ISaveContext->>) ->>) {
-        ! ctx : SQLiteContext(_Path) {
+    SaveAsync := (func: (ISaveContext->>) ->>) {
+        -> ctx := SQLiteContext(_Path) {
             func~>(SQLiteDataContext(ctx))
             ctx.SaveChangesAsync~>()
         }
     }
 }
 
-SQLiteDataContext : $ {
+SQLiteDataContext := $ {
     IQueryContext
     ISaveContext
-    _ctx SQLiteContext
+    _ctx: SQLiteContext
 
-    [Set T:BaseModel] : (-> r [IQueryable T]) {
+    [Set T:BaseModel] := (-> r: [IQueryable T]) {
         <- _ctx.[Set T]()
     }
 
-    [Create T:BaseModel] : (item T ->) {
+    [Create T:BaseModel] := (item: T ->) {
         _ctx.[Set T]().Add(item)
     }
 
-    [Update T:BaseModel] : (item T ->) {
+    [Update T:BaseModel] := (item: T ->) {
         _ctx.[Set T]().Update(item)
     }
 
-    [Delete T:BaseModel] : (id str ->) {
-        @ item : _ctx.[Set T]().Where{i->i.Id==id} {
+    [Delete T:BaseModel] := (id: str ->) {
+        @ item := _ctx.[Set T]().Where{i->i.Id==id} {
             _ctx.[Set T]().Remove(item)
         }
     }
 }
-SQLiteDataContext : (ctx SQLiteContext->$) {
+SQLiteDataContext := (ctx: SQLiteContext->$) {
     _ctx = ctx
 }
 
