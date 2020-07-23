@@ -9,7 +9,7 @@
 }
 
 # "核心接口"
-IKuKey := $$ {
+IKuKey := [$] {
     UpdateEncryptService: (srv: IEncryptService->)
     UpdateEncryptData: (srv: IEncryptService->>)
     QueryAsync: (func: (ICoreQueryContext->>) ->>)
@@ -21,12 +21,12 @@ IKuKey := $$ {
     GeneratePassword: (len: int, number: bool, lower: bool, upper: bool, symbol: bool->v: str)
 }
 
-ICoreQueryContext := $$ {
+ICoreQueryContext := [$] {
     [Decrypt T:BaseModel]: (item: T->r: T, b: bool)
     [Set T:BaseModel]: (-> r: [IQueryable T])
 }
 
-ICoreSaveContext := $$ {
+ICoreSaveContext := [$] {
     [Decrypt T:BaseModel]: (item: T->r: T, b: bool)
     [Set T:BaseModel]: (-> r: [IQueryable T])
     [Create T:BaseModel]: (item: T -> id: str)

@@ -4,7 +4,7 @@
     System
 }
 
-IEncryptService := $$ {
+IEncryptService := [$] {
     # "加密"
     Encrypt: (v: str -> v: str) 
     # "解密"
