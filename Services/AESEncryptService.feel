@@ -13,14 +13,14 @@ AESEncryptService := $ {
     _MasterPassword: str
     # "加密"
     Encrypt := (v: str -> v: str) {
-        ? v.Length > 0 {
+        v.Length > 0 ? {
             v = AES256Encrypt(v, _MasterPassword)
         }
         <- v
     }
     # "解密"
     Decrypt := (v: str -> v: str, b: bool) {
-        ? v.Length > 0 {
+        v.Length > 0 ? {
             <- AES256Decrypt(v, _MasterPassword)
         }
         <- v, true
@@ -29,50 +29,50 @@ AESEncryptService := $ {
     GeneratePassword := (len: int, number: bool, lower: bool, upper: bool, symbol: bool->v: str) {
         !pool := ""
         !count := 0
-        ? number {
+        number ? {
             pool += Number
             count += 1
         }
-        ? lower {
+        lower ? {
             pool += Lowercase
             count += 1
         }
-        ? upper {
+        upper ? {
             pool += Uppercase
             count += 1
         }
-        ? symbol {
+        symbol ? {
             pool += Symbol
             count += 1
         }
-        ? [count] 1 {
-            ? number {
+        [count] 1 ? {
+            number ? {
                 pool += "01"
-            } lower {
+            } lower ? {
                 pool += "l"
-            } upper {
+            } upper ? {
                 pool += "IO"
-            } symbol {
+            } symbol ? {
                 pool += "|"
             }
-        } 2 {
-            ? number & symbol {
+        } 2 ? {
+            number & symbol ? {
                 pool += "01"
-            } lower & upper {
+            } lower & upper ? {
                 pool += "O"
-            } symbol & upper {
+            } symbol & upper ? {
                 pool += "O"
-            } number & lower {
+            } number & lower ? {
                 pool += "0"
             }
-        } 3 {
-            ? number & ~upper {
+        } 3 ? {
+            number & ~upper ? {
                 pool += "0"
-            } ~number & upper {
+            } ~number & upper ? {
                 pool += "O"
             }
         }
-        ? pool == "" {
+        pool == "" ? {
             pool = "01"
         }
         <- GeneratePasswordByPool(len, pool)

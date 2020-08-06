@@ -49,7 +49,7 @@ SQLiteDataContext := $ {
     }
 
     [Delete T:BaseModel] := (id: str ->) {
-        @ item := _ctx.[Set T]().Where{i->i.Id==id} {
+        _ctx.[Set T]().Where{i->i.Id==id} @ item {
             _ctx.[Set T]().Remove(item)
         }
     }

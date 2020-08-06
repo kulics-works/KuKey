@@ -22,10 +22,10 @@ MemoryDataStoreService := $ me {
 
     # "获取某个数据集"
     [_GetDataset T:BaseModel] := (->r: [list T]) {
-        ? ~_Dataset.has_key(typeof(T)) {
+        ~_Dataset.has_key(typeof(T)) ? {
             _Dataset.add(typeof(T), [list T]{})
         }
-        <- _Dataset[typeof(T)]: [list T]! 
+        <- _Dataset[typeof(T)]!: [list T] 
     }
 
     QueryAsync := (func: (IQueryContext->>) ->>) {

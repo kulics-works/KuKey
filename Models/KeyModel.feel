@@ -42,7 +42,7 @@ KeyModel := $ me {
     }
     . Decrypt := (encryptor: IEncryptService->v: any, b: bool) {
         name, success := encryptor.Decrypt(Name)
-        ? success {
+        success ? {
             <- KeyModel{
                 Id = Id
                 Name = name

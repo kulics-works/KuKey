@@ -24,7 +24,7 @@ TagModel := $ me {
     }
     . Decrypt := (encryptor: IEncryptService->v: any, b: bool) {
         name, success := encryptor.Decrypt(Name)
-        ? success {
+        success ? {
             <- TagModel{
                 Id = Id
                 Name = name
