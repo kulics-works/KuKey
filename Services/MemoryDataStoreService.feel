@@ -1,4 +1,4 @@
-<- Kulics.KuKey.Services
+<- KuKey.Services
 
 -> {
     System
@@ -6,8 +6,8 @@
     System.Linq
     System.Threading.Tasks
 
-    Kulics.KuKey.Models
-    Kulics.KuKey.Databases
+    KuKey.Models
+    KuKey.Databases
 }
 # "内存 数据存储服务"
 MemoryDataStoreService := (->$) {

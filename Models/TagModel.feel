@@ -1,11 +1,11 @@
-<- Kulics.KuKey.Models
+<- KuKey.Models
 
 -> {
     System
     System.ComponentModel.DataAnnotations
     System.ComponentModel.DataAnnotations.Schema
 
-    Kulics.KuKey.Services
+    KuKey.Services
 }
 
 #Table("tag")

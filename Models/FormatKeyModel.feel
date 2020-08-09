@@ -1,4 +1,4 @@
-<- Kulics.KuKey.Models
+<- KuKey.Models
 
 -> {
     System
@@ -6,7 +6,7 @@
     System.ComponentModel.DataAnnotations.Schema
     Newtonsoft.Json
 
-    Kulics.KuKey.Services
+    KuKey.Services
 }
 
 FormatKeyModel := $ me {

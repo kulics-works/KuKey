@@ -1,4 +1,4 @@
-<- Kulics.KuKey.Core
+<- KuKey.Core
 
 -> {
     System
@@ -8,9 +8,9 @@
 
     Newtonsoft.Json
     
-    Kulics.KuKey.Models
-    Kulics.KuKey.Databases
-    Kulics.KuKey.Services
+    KuKey.Models
+    KuKey.Databases
+    KuKey.Services
 }
 
 # "主程序"

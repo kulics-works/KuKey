@@ -1,7 +1,7 @@
-<- Kulics.KuKey.Services
+<- KuKey.Services
 
 -> {
-    _ := Kulics.KuKey.Encryptor.Encryptor_static
+    _ := KuKey.Encryptor.Encryptor_static
 }
 # "加密服务"
 AESEncryptService := (password: str->$) {

@@ -1,11 +1,11 @@
-<- Kulics.KuKey.Core
+<- KuKey.Core
 
 -> {
     System
     System.Linq
     
-    Kulics.KuKey.Models
-    Kulics.KuKey.Services
+    KuKey.Models
+    KuKey.Services
 }
 
 # "核心接口"

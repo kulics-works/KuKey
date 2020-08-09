@@ -1,10 +1,10 @@
-<- Kulics.KuKey.Services
+<- KuKey.Services
 
 -> {
     System
     System.Linq
     
-    Kulics.KuKey.Models
+    KuKey.Models
 }
 
 IDataStoreService := [$] {

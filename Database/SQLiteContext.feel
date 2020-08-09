@@ -1,4 +1,4 @@
-<- Kulics.KuKey.Databases
+<- KuKey.Databases
 
 -> {
     System
@@ -13,7 +13,7 @@
     Microsoft.Extensions.DependencyInjection
     Microsoft.Extensions.Logging
 
-    Kulics.KuKey.Models
+    KuKey.Models
 }
 # "sqlite上下文"
 # "必须由外部传入路径"
