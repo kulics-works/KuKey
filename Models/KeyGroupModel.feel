@@ -8,14 +8,14 @@
     KuKey.Services
 }
 
-#Table("tag")
-TagModel := $ me {
+#Table("key_group")
+KeyGroupModel := $ me {
     BaseModel
     #Column("name") #get #set
     !Name := ""
 
     . Encrypt := (encryptor: IEncryptService->v: any) {
-        <- TagModel{
+        <- KeyGroupModel{
             Id = Id
             Name = encryptor.Encrypt(Name)
             CreateAt = CreateAt
@@ -25,7 +25,7 @@ TagModel := $ me {
     . Decrypt := (encryptor: IEncryptService->v: any, b: bool) {
         name, success := encryptor.Decrypt(Name)
         success ? {
-            <- TagModel{
+            <- KeyGroupModel{
                 Id = Id
                 Name = name
                 CreateAt = CreateAt

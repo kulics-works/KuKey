@@ -25,6 +25,8 @@ KeyModel := $ me {
     !URL := ""
     #Column("note") #get #set
     !Note := ""
+    #Column("key_group") #get #set
+    !KeyGroup := ""
 
     . Encrypt := (encryptor: IEncryptService->v: any) {
         <- KeyModel{
@@ -36,6 +38,7 @@ KeyModel := $ me {
             SubPassword = encryptor.Encrypt(SubPassword)
             URL = encryptor.Encrypt(URL)
             Note = encryptor.Encrypt(Note)
+            KeyGroup = KeyGroup
             CreateAt = CreateAt
             UpdateAt = UpdateAt
         }
@@ -52,6 +55,7 @@ KeyModel := $ me {
                 SubPassword = encryptor.Decrypt(SubPassword).v
                 URL = encryptor.Decrypt(URL).v
                 Note = encryptor.Decrypt(Note).v
+                KeyGroup = KeyGroup
                 CreateAt = CreateAt
                 UpdateAt = UpdateAt
             }, true

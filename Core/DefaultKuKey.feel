@@ -78,8 +78,7 @@ DefaultKuKey := $ me {
         QueryAsync~>{ ctx ->>
             text = JsonConvert.SerializeObject(KuKeyFormat{
                 Key = ctx.Set KeyModel().to_list()
-                Tag = ctx.Set TagModel().to_list()
-                KeyMapTag = ctx.Set KeyMapTagModel().to_list()
+                KeyGroup = ctx.Set KeyGroupModel().to_list()
             })
         }
         <- text
@@ -104,10 +103,7 @@ DefaultKuKey := $ me {
             source.Key @ v {
                 _Import(ctx, v)
             }
-            source.Tag @ v {
-                _Import(ctx, v)
-            }
-            source.KeyMapTag @ v {
+            source.KeyGroup @ v {
                 _Import(ctx, v)
             }
         }
@@ -144,8 +140,7 @@ DefaultKuKey := $ me {
 
 KuKeyFormat := $ {
     Key:         list KeyModel
-    Tag:         list TagModel
-    KeyMapTag:   list KeyMapTagModel
+    KeyGroup:    list KeyGroupModel
     Version := 1
 }
 
