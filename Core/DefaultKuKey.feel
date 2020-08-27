@@ -35,7 +35,7 @@ DefaultKuKey := $ me {
 
     UpdateEncryptData := (srv: IEncryptService->>) {
         keys := list KeyModel{}
-        tags := list TagModel{}
+        keyGroups := list KeyGroupModel{}
         _DataStoreService.QueryAsync~>{ ctx ->>
             ctx.Set KeyModel() @ item {
                 r, b := item.Decrypt(_EncryptService)
@@ -43,10 +43,10 @@ DefaultKuKey := $ me {
                     keys.add(r!: KeyModel)
                 }
             }
-            ctx.Set TagModel() @ item {
+            ctx.Set KeyGroupModel() @ item {
                 r, b := item.Decrypt(_EncryptService)
                 b ? {
-                    tags.add(r!: TagModel)
+                    keyGroups.add(r!: KeyGroupModel)
                 }
             }
         }
@@ -54,8 +54,8 @@ DefaultKuKey := $ me {
             keys @ item {
                 ctx.Update(item.Encrypt(srv)!: KeyModel)
             }
-            tags @ item {
-                ctx.Update(item.Encrypt(srv)!: TagModel)
+            keyGroups @ item {
+                ctx.Update(item.Encrypt(srv)!: KeyGroupModel)
             }
         }
         _EncryptService = srv

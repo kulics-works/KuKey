@@ -28,9 +28,7 @@ SQLiteContext := $ {
     #get #set
     Key: DbSet KeyModel
     #get #set
-    Tag: DbSet TagModel
-    #get #set
-    KeyMapTag: DbSet KeyMapTagModel
+    KeyGroup: DbSet KeyGroupModel
 
     . _ OnConfiguring := (optionsBuilder: DbContextOptionsBuilder ->) {
         optionsBuilder.UseSqlite("Filename=${_DatabasePath}")
