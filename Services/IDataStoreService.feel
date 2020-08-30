@@ -7,16 +7,16 @@
     KuKey.Models
 }
 
-IDataStoreService := [$] {
+IDataStoreService := $ {
     QueryAsync: (func: (IQueryContext->>) ->>)
     SaveAsync: (func: (ISaveContext->>) ->>)
 }
 
-IQueryContext := [$] {
+IQueryContext := $ {
     Set: T:BaseModel (-> r: IQueryable T)
 }
 
-ISaveContext := [$] {
+ISaveContext := $ {
     Set: T:BaseModel (-> r: IQueryable T)
     Create: T:BaseModel (item: T ->)
     Update: T:BaseModel (item: T ->)
