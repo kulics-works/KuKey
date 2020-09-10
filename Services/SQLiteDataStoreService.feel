@@ -48,10 +48,8 @@ SQLiteDataContext = $ me {
         me._ctx.Set`T().Update(item)
     }
 
-    Delete = `T:BaseModel (id: str ->) {
-        me._ctx.Set`T().Where{i->i.Id==id} @ item {
-            me._ctx.Set`T().Remove(item)
-        }
+    Delete = `T:BaseModel (item: T ->) {
+        me._ctx.Set`T().Remove(item)
     }
 }
 SQLiteDataContext = (ctx: SQLiteContext->$me) {

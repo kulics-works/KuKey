@@ -199,8 +199,8 @@ CoreSaveContext = $ me {
         me._DataContext.Update(item.Encrypt(me._EncryptService)!: T)
     }
 
-    Delete = `T:BaseModel (id: str ->) {
-        me._DataContext.Delete`T(id)
+    Delete = `T:BaseModel (item: T ->) {
+        me._DataContext.Delete`T(item)
     }
 }
 CoreSaveContext = (ctx: ISaveContext, srv: IEncryptService->$me) {

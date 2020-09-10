@@ -31,5 +31,5 @@ ICoreSaveContext = $ {
     Set:        `T:BaseModel (-> r: IQueryable`T)
     Create:     `T:BaseModel (item: T -> id: str)
     Update:     `T:BaseModel (item: T ->)
-    Delete:     `T:BaseModel (id: str ->)
+    Delete:     `T:BaseModel (item: T ->)
 }
