@@ -8,13 +8,13 @@
     KuKey.Services
 }
 
-#Table("key_group")
-KeyGroupModel := $ me {
-    BaseModel
-    #Column("name") #get #set
-    !Name := ""
+[Table("key_group")]
+KeyGroupModel = $ me {
+    . BaseModel
+    [Column("name"), get, set]
+    !Name = ""
 
-    . Encrypt := (encryptor: IEncryptService->v: any) {
+    . Encrypt = (encryptor: IEncryptService->v: any) {
         <- KeyGroupModel{
             Id = Id
             Name = encryptor.Encrypt(Name)
@@ -22,8 +22,8 @@ KeyGroupModel := $ me {
             UpdateAt = UpdateAt
         }
     }
-    . Decrypt := (encryptor: IEncryptService->v: any, b: bool) {
-        name, success := encryptor.Decrypt(Name)
+    . Decrypt = (encryptor: IEncryptService->v: any, b: bool) {
+        name, success = encryptor.Decrypt(Name)
         success ? {
             <- KeyGroupModel{
                 Id = Id

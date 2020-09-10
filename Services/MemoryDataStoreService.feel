@@ -9,47 +9,46 @@
     KuKey.Models
     KuKey.Databases
 }
-# "内存 数据存储服务"
-MemoryDataStoreService := (->$) {
+-- 内存 数据存储服务
+MemoryDataStoreService = (->$) {
 }
-MemoryDataStoreService := $ me {
-    IDataStoreService
-    IQueryContext
-    ISaveContext
-    # "内存数据集，使用类型作为键，值为类型列表"
-    #get #set
-    !_Dataset := dict Type any{}
+MemoryDataStoreService = $ me {
+    . IDataStoreService
+    . IQueryContext
+    . ISaveContext
+    -- 内存数据集，使用类型作为键，值为类型列表
+    [get, set]
+    !_Dataset = dict`Type`any{}
 
-    # "获取某个数据集"
-    _GetDataset := T:BaseModel (->r: list T) {
-        ~_Dataset.has_key(typeof(T)) ? {
-            _Dataset.add(typeof(T), list T{})
+    -- 获取某个数据集
+    _GetDataset = `T:BaseModel (->r: list `T) {
+        ~~me._Dataset.has_key(typeof(T)) ? {
+            me._Dataset.add(typeof(T), list`T{})
         }
-        <- _Dataset[typeof(T)]!: list T
+        <- me._Dataset[typeof(T)]!: list`T
     }
 
-    QueryAsync := (func: (IQueryContext->>) ->>) {
+    QueryAsync = (func: (IQueryContext->>) ->>) {
         func~>(me)
     }
 
-    SaveAsync := (func: (ISaveContext->>) ->>) {
+    SaveAsync = (func: (ISaveContext->>) ->>) {
         func~>(me)
     }
 
-    Set := T:BaseModel (-> r: IQueryable T) {
-        <- _GetDataset T().AsQueryable() 
-
+    Set = `T:BaseModel (-> r: IQueryable`T) {
+        <- me._GetDataset`T().AsQueryable() 
     }
 
-    Create := T:BaseModel (item: T ->) {
-        _GetDataset T().add(item)
+    Create = `T:BaseModel (item: T ->) {
+        me._GetDataset`T().add(item)
     }
 
-    Update := T:BaseModel (item: T ->) {
-        _GetDataset T().update({i->i.Id==item.Id}, item)
+    Update = `T:BaseModel (item: T ->) {
+        me._GetDataset`T().update({i->i.Id==item.Id}, item)
     }
 
-    Delete := T:BaseModel (id: str ->) {
-        _GetDataset T().remove_all{i->i.Id==id}
+    Delete = `T:BaseModel (id: str ->) {
+        me._GetDataset`T().remove_all{i->i.Id==id}
     }
 }

@@ -9,21 +9,21 @@
     KuKey.Services
 }
 
-FormatKeyModel := $ me {
-    #get #set #JsonProperty("name")
-    !Name := ""
-    #get #set #JsonProperty("account")
-    !Account := ""
-    #get #set #JsonProperty("password")
-    !Password := ""
-    #get #set #JsonProperty("password2")
-    !Password2 := ""
-    #get #set #JsonProperty("url")
-    !URL := ""
-    #get #set #JsonProperty("note")
-    !Note := ""
+FormatKeyModel = $ me {
+    [get, set, JsonProperty("name")]
+    !Name = ""
+    [get, set, JsonProperty("account")]
+    !Account = ""
+    [get, set, JsonProperty("password")]
+    !Password = ""
+    [get, set, JsonProperty("password2")]
+    !Password2 = ""
+    [get, set, JsonProperty("url")]
+    !URL = ""
+    [get, set, JsonProperty("note")]
+    !Note = ""
 
-    ToKeyModel := (->v: KeyModel) {
+    ToKeyModel = (->v: KeyModel) {
         <- KeyModel{
             Name = Name
             Account = Account
@@ -34,7 +34,7 @@ FormatKeyModel := $ me {
         }
     }
 
-    FromKeyModel := (v: KeyModel->v: FormatKeyModel) {
+    FromKeyModel = (v: KeyModel->v: FormatKeyModel) {
         Name = v.Name
         Account = v.Account
         Password = v.Password

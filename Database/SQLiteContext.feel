@@ -15,26 +15,26 @@
 
     KuKey.Models
 }
-# "sqlite上下文"
-# "必须由外部传入路径"
-SQLiteContext := (path: str->$) {
-    _DatabasePath = path
+-- sqlite上下文
+-- 必须由外部传入路径
+SQLiteContext = (path: str->$me) {
+    me._DatabasePath = path
     Database.EnsureCreated()
     Database.Migrate()
 }
-SQLiteContext := $ {
-    DbContext
+SQLiteContext = $ {
+    . DbContext
     _DatabasePath: str
-    #get #set
-    Key: DbSet KeyModel
-    #get #set
-    KeyGroup: DbSet KeyGroupModel
+    [get, set]
+    Key: DbSet`KeyModel
+    [get, set]
+    KeyGroup: DbSet`KeyGroupModel
 
-    . _ OnConfiguring := (optionsBuilder: DbContextOptionsBuilder ->) {
+    . _ OnConfiguring = (optionsBuilder: DbContextOptionsBuilder ->) {
         optionsBuilder.UseSqlite("Filename=${_DatabasePath}")
-        #: optionsBuilder.EnableSensitiveDataLogging()
+        -- optionsBuilder.EnableSensitiveDataLogging()
     }
 
-    . _ OnModelCreating := (modelBuilder: ModelBuilder ->) {
+    . _ OnModelCreating = (modelBuilder: ModelBuilder ->) {
     }
 }

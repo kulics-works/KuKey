@@ -1,34 +1,34 @@
 <- KuKey.Services
 
 -> {
-    _ := KuKey.Encryptor.Encryptor_static
+    . = KuKey.Encryptor.Encryptor_static
 }
-# "加密服务"
-AESEncryptService := (password: str->$) {
-    _MasterPassword = password
+-- 加密服务
+AESEncryptService = (password: str->$me) {
+    me._MasterPassword = password
 }
-AESEncryptService := $ {
-    IEncryptService
-    # "主密码"
+AESEncryptService = $ {
+    . IEncryptService
+    -- 主密码
     _MasterPassword: str
-    # "加密"
-    Encrypt := (v: str -> v: str) {
+    -- 加密
+    Encrypt = (v: str -> v: str) {
         v.Length > 0 ? {
             v = AES256Encrypt(v, _MasterPassword)
         }
         <- v
     }
-    # "解密"
-    Decrypt := (v: str -> v: str, b: bool) {
+    -- 解密
+    Decrypt = (v: str -> v: str, b: bool) {
         v.Length > 0 ? {
             <- AES256Decrypt(v, _MasterPassword)
         }
         <- v, true
     }
-    # "生成密码"
-    GeneratePassword := (len: int, number: bool, lower: bool, upper: bool, symbol: bool->v: str) {
-        !pool := ""
-        !count := 0
+    -- 生成密码
+    GeneratePassword = (len: int, number: bool, lower: bool, upper: bool, symbol: bool->v: str) {
+        !pool = ""
+        !count = 0
         number ? {
             pool += Number
             count += 1
@@ -45,33 +45,36 @@ AESEncryptService := $ {
             pool += Symbol
             count += 1
         }
-        count => 1 ? {
-            number ? {
-                pool += "01"
-            } lower ? {
-                pool += "l"
-            } upper ? {
-                pool += "IO"
-            } symbol ? {
-                pool += "|"
+        count =>
+            | 1 ? {
+                number ? {
+                    pool += "01"
+                } | lower ? {
+                    pool += "l"
+                } | upper ? {
+                    pool += "IO"
+                } | symbol ? {
+                    pool += "|"
+                }
             }
-        } 2 ? {
-            number & symbol ? {
-                pool += "01"
-            } lower & upper ? {
-                pool += "O"
-            } symbol & upper ? {
-                pool += "O"
-            } number & lower ? {
-                pool += "0"
+            | 2 ? {
+                number && symbol ? {
+                    pool += "01"
+                } | lower && upper ? {
+                    pool += "O"
+                } | symbol && upper ? {
+                    pool += "O"
+                } | number && lower ? {
+                    pool += "0"
+                }
             }
-        } 3 ? {
-            number & ~upper ? {
-                pool += "0"
-            } ~number & upper ? {
-                pool += "O"
+            | 3 ? {
+                number && ~~upper ? {
+                    pool += "0"
+                } | ~~number && upper ? {
+                    pool += "O"
+                }
             }
-        }
         pool == "" ? {
             pool = "01"
         }
