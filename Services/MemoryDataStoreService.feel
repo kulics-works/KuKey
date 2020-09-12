@@ -45,10 +45,10 @@ MemoryDataStoreService = $ me {
     }
 
     Update = `T:BaseModel (item: T ->) {
-        me._GetDataset`T().update({i->i.Id==item.Id}, item)
+        me._GetDataset`T().update((i){i.Id==item.Id}, item)
     }
 
     Delete = `T:BaseModel (item: T ->) {
-        me._GetDataset`T().remove_all{i->i.Id==item.Id}
+        me._GetDataset`T().remove_all((i){i.Id==item.Id})
     }
 }

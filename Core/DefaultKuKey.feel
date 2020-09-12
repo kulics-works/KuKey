@@ -36,7 +36,7 @@ DefaultKuKey = $ me {
     UpdateEncryptData = (srv: IEncryptService->>) {
         keys = list`KeyModel{}
         keyGroups = list`KeyGroupModel{}
-        me._DataStoreService.QueryAsync~>{ ctx ->>
+        me._DataStoreService.QueryAsync~>( (ctx>) {
             ctx.Set`KeyModel() @ item {
                 r, b = item.Decrypt(me._EncryptService)
                 b ? {
@@ -49,44 +49,44 @@ DefaultKuKey = $ me {
                     keyGroups.add(r!: KeyGroupModel)
                 }
             }
-        }
-        me._DataStoreService.SaveAsync~>{ ctx ->> 
+        })
+        me._DataStoreService.SaveAsync~>( (ctx>) { 
             keys @ item {
                 ctx.Update(item.Encrypt(srv)!: KeyModel)
             }
             keyGroups @ item {
                 ctx.Update(item.Encrypt(srv)!: KeyGroupModel)
             }
-        }
+        })
         me._EncryptService = srv
     }
 
     QueryAsync = (func: (ICoreQueryContext->>) ->>) {
-        me._DataStoreService.QueryAsync~>{ ctx -> 
+        me._DataStoreService.QueryAsync~>( (ctx) { 
             func~>(CoreQueryContext(ctx, me._EncryptService))
-        }
+        })
     }
 
     SaveAsync = (func: (ICoreSaveContext->>) ->>) {
-        me._DataStoreService.SaveAsync~>{ ctx -> 
+        me._DataStoreService.SaveAsync~>( (ctx) { 
             func~>(CoreSaveContext(ctx, me._EncryptService))
-        }
+        })
     }
 
     Export = (->>text: str) {
         !text = ""
-        QueryAsync~>{ ctx ->>
+        QueryAsync~>( (ctx>) {
             text = JsonConvert.SerializeObject(KuKeyFormat{
                 Key = ctx.Set`KeyModel().to_list()
                 KeyGroup = ctx.Set`KeyGroupModel().to_list()
             })
-        }
+        })
         <- text
     }
 
     -- 导入
     _Import = `T:BaseModel (ctx: ICoreSaveContext, item: T ->) {
-        data = ctx.Set`T().FirstOrDefault{i->i.Id==item.Id}
+        data = ctx.Set`T().FirstOrDefault((i){i.Id==item.Id})
         data >< nil ? {
             data.UpdateAt < item.UpdateAt ? {
                 ctx.Update(item)
@@ -97,21 +97,21 @@ DefaultKuKey = $ me {
     }
 
     Import = (text: str->>) {
-        SaveAsync~>{ ctx ->>
+        SaveAsync~>( (ctx>) {
             source = JsonConvert.DeserializeObject`KuKeyFormat(text)
-            # "逐条导入数据"
+            -- 逐条导入数据
             source.Key @ v {
                 me._Import(ctx, v)
             }
             source.KeyGroup @ v {
                 me._Import(ctx, v)
             }
-        }
+        })
     }
 
     FormatExport = (->>text: str) {
         !text = ""
-        me.QueryAsync~>{ ctx ->
+        me.QueryAsync~>( (ctx) {
             keys = list`FormatKeyModel{} 
             ctx.Set`KeyModel().ToListAsync~>() @ item {
                 keys += FormatKeyModel{}.FromKeyModel(ctx.Decrypt(item).r)
@@ -119,18 +119,18 @@ DefaultKuKey = $ me {
             text = JsonConvert.SerializeObject(OpenFormat{
                 Key = keys
             })
-        }
+        })
         <- text
     }
 
     FormatImport = (text: str->>) {
-        SaveAsync~>{ ctx ->>
+        SaveAsync~>( (ctx>) {
             source = JsonConvert.DeserializeObject`OpenFormat(text)
             -- 逐条导入数据
             source.Key @ v {
                 ctx.Create(v.ToKeyModel())
             }
-        }
+        })
     }
 
     GeneratePassword = (len: int, number: bool, lower: bool, upper: bool, symbol: bool->v: str) {
