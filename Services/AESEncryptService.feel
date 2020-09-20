@@ -45,36 +45,42 @@ AESEncryptService = $ {
             pool += Symbol
             count += 1
         }
-        count == {
-            | 1 ?
-                ? {
-                    | number ?
-                        pool += "01"
-                    | lower ?
-                        pool += "l"
-                    | upper ?
-                        pool += "IO"
-                    | symbol ?
-                        pool += "|"
-                }
-            | 2 ?
-                ? {
-                    | number && symbol ?
-                        pool += "01"
-                    | lower && upper ?
-                        pool += "O"
-                    | symbol && upper ?
-                        pool += "O"
-                    | number && lower ?
-                        pool += "0"
-                }
-            | 3 ?
-                ? {
-                    | number && ~~upper ?
-                        pool += "0"
-                    | ~~number && upper ?
-                        pool += "O"
-                }
+        count == 
+        | 1 ? {
+            number ? {
+                pool += "01"
+            }
+            | lower ? {
+                pool += "l"
+            }
+            | upper ? {
+                pool += "IO"
+            }
+            | symbol ? {
+                pool += "|"
+            }
+        }
+        | 2 ? {
+            number && symbol ? {
+                pool += "01"
+            }
+            | lower && upper ? {
+                pool += "O"
+            }
+            | symbol && upper ? {
+                pool += "O"
+            }
+            | number && lower ? {
+                pool += "0"
+            }
+        }
+        | 3 ? {
+            number && ~~upper ? {
+                pool += "0"
+            }
+            | ~~number && upper ? {
+                pool += "O"
+            }
         }
         pool == "" ? {
             pool = "01"

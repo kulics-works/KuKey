@@ -61,7 +61,8 @@ AES256Decrypt = (content: str, key: str -> v: str, success: bool) {
             cryptoTransform = aes.CreateDecryptor()
             result = cryptoTransform.TransformFinalBlock(valueBytes, 0, valueBytes.Length)
             <- result.to_str(), true
-        } e ! {
+        }
+        & e ! {
             <- content, false
         }
     }
