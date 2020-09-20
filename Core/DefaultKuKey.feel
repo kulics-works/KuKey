@@ -40,22 +40,22 @@ DefaultKuKey = $ me {
             ctx.Set`KeyModel() @ item {
                 r, b = item.Decrypt(me._EncryptService)
                 b ? {
-                    keys.add(r!: KeyModel)
+                    keys.add(r !! KeyModel)
                 }
             }
             ctx.Set`KeyGroupModel() @ item {
                 r, b = item.Decrypt(me._EncryptService)
                 b ? {
-                    keyGroups.add(r!: KeyGroupModel)
+                    keyGroups.add(r !! KeyGroupModel)
                 }
             }
         })
         me._DataStoreService.SaveAsync~>( (ctx>) { 
             keys @ item {
-                ctx.Update(item.Encrypt(srv)!: KeyModel)
+                ctx.Update(item.Encrypt(srv) !! KeyModel)
             }
             keyGroups @ item {
-                ctx.Update(item.Encrypt(srv)!: KeyGroupModel)
+                ctx.Update(item.Encrypt(srv) !! KeyGroupModel)
             }
         })
         me._EncryptService = srv
@@ -91,7 +91,7 @@ DefaultKuKey = $ me {
             data.UpdateAt < item.UpdateAt ? {
                 ctx.Update(item)
             }
-        } | _ {
+        } _ ? {
             ctx.Create(item)
         }
     }
@@ -162,7 +162,7 @@ CoreQueryContext = $ me {
 
     Decrypt = `T:BaseModel (item: T->r: T, b: bool) {
         r, b = item.Decrypt(me._EncryptService)
-        <- r!: T, b
+        <- r !! T, b
     }
 }
 CoreQueryContext = (ctx: IQueryContext, srv: IEncryptService->$me) {
@@ -181,22 +181,22 @@ CoreSaveContext = $ me {
 
     Decrypt = `T:BaseModel (item: T->r: T, b: bool) {
         r, b = item.Decrypt(me._EncryptService)
-        <- r!: T, b
+        <- r !! T, b
     }
 
     Create = `T:BaseModel (item: T -> id: str) {
         item.Id = Guid.NewGuid().ToString()
-        time = (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000!: int
+        time = (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 !! int
         item.CreateAt = time
         item.UpdateAt = time
-        me._DataContext.Create(item.Encrypt(me._EncryptService)!: T)
+        me._DataContext.Create(item.Encrypt(me._EncryptService) !! T)
         <- item.Id
     }
 
     Update = `T:BaseModel (item: T ->) {
-        time = (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000!: int
+        time = (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 !! int
         item.UpdateAt = time
-        me._DataContext.Update(item.Encrypt(me._EncryptService)!: T)
+        me._DataContext.Update(item.Encrypt(me._EncryptService) !! T)
     }
 
     Delete = `T:BaseModel (item: T ->) {

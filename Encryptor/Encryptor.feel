@@ -57,11 +57,11 @@ AES256Decrypt = (content: str, key: str -> v: str, success: bool) {
         Mode = CipherMode.CBC
         Padding = PaddingMode.PKCS7
     } {
-        ! {
+        {
             cryptoTransform = aes.CreateDecryptor()
             result = cryptoTransform.TransformFinalBlock(valueBytes, 0, valueBytes.Length)
             <- result.to_str(), true
-        } & e {
+        } e ! {
             <- content, false
         }
     }
@@ -76,7 +76,7 @@ Symbol      = "~!@#$%^&*()_-+={}:;<,>.?/\\"
 GeneratePasswordByPool = (len: int, pool: str -> v: str) {
     !password = ""
     rand = Random{}
-    0 .. len-1 @ i {
+    0 ..< len @ i {
         password += pool[rand.Next( pool.len() )]
     }
     <- password

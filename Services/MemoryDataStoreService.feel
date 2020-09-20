@@ -25,7 +25,7 @@ MemoryDataStoreService = $ me {
         ~~me._Dataset.has_key(typeof(T)) ? {
             me._Dataset.add(typeof(T), list`T{})
         }
-        <- me._Dataset[typeof(T)]!: list`T
+        <- me._Dataset[typeof(T)] !! list`T
     }
 
     QueryAsync = (func: (IQueryContext->>) ->>) {
