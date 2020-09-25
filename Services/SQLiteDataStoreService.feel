@@ -10,20 +10,20 @@
     KuKey.Databases
 }
 -- SQLite 数据存储服务
-SQLiteDataStoreService = (path: str->$me) {
+SQLiteDataStoreService = (path : str->$me) {
     me._Path = path
 }
 SQLiteDataStoreService = $ me {
     . IDataStoreService
-    _Path: str
+    _Path : str
 
-    QueryAsync = (func: (IQueryContext->>) ->>) {
+    QueryAsync = (func : (IQueryContext->>) ->>) {
         -> ctx = SQLiteContext(me._Path) {
             func~>(SQLiteDataContext(ctx))
         }
     }
 
-    SaveAsync = (func: (ISaveContext->>) ->>) {
+    SaveAsync = (func : (ISaveContext->>) ->>) {
         -> ctx = SQLiteContext(_Path) {
             func~>(SQLiteDataContext(ctx))
             ctx.SaveChangesAsync~>()
@@ -34,25 +34,25 @@ SQLiteDataStoreService = $ me {
 SQLiteDataContext = $ me {
     . IQueryContext
     . ISaveContext
-    _ctx: SQLiteContext
+    _ctx : SQLiteContext
 
-    Set = `T:BaseModel (-> r: IQueryable`T) {
+    Set`(T:BaseModel) = (-> r : IQueryable`T) {
         <- me._ctx.Set`T()
     }
 
-    Create = `T:BaseModel (item: T ->) {
+    Create`(T:BaseModel) = (item : T ->) {
         me._ctx.Set`T().Add(item)
     }
 
-    Update = `T:BaseModel (item: T ->) {
+    Update`(T:BaseModel) = (item : T ->) {
         me._ctx.Set`T().Update(item)
     }
 
-    Delete = `T:BaseModel (item: T ->) {
+    Delete`(T:BaseModel) = (item : T ->) {
         me._ctx.Set`T().Remove(item)
     }
 }
-SQLiteDataContext = (ctx: SQLiteContext->$me) {
+SQLiteDataContext = (ctx : SQLiteContext->$me) {
     me._ctx = ctx
 }
 

@@ -4,29 +4,29 @@
     . = KuKey.Encryptor.Encryptor_static
 }
 -- 加密服务
-AESEncryptService = (password: str->$me) {
+AESEncryptService = (password : str->$me) {
     me._MasterPassword = password
 }
 AESEncryptService = $ {
     . IEncryptService
     -- 主密码
-    _MasterPassword: str
+    _MasterPassword : str
     -- 加密
-    Encrypt = (v: str -> v: str) {
+    Encrypt = (v : str -> v : str) {
         v.Length > 0 ? {
             v = AES256Encrypt(v, _MasterPassword)
         }
         <- v
     }
     -- 解密
-    Decrypt = (v: str -> v: str, b: bool) {
+    Decrypt = (v : str -> v : str, b : bool) {
         v.Length > 0 ? {
             <- AES256Decrypt(v, _MasterPassword)
         }
         <- v, true
     }
     -- 生成密码
-    GeneratePassword = (len: int, number: bool, lower: bool, upper: bool, symbol: bool->v: str) {
+    GeneratePassword = (len : int, number : bool, lower : bool, upper : bool, symbol : bool->v : str) {
         !pool = ""
         !count = 0
         number ? {

@@ -23,7 +23,7 @@ FormatKeyModel = $ me {
     [get, set, JsonProperty("note")]
     !Note = ""
 
-    ToKeyModel = (->v: KeyModel) {
+    ToKeyModel = (->v : KeyModel) {
         <- KeyModel{
             Name = Name
             Account = Account
@@ -34,7 +34,7 @@ FormatKeyModel = $ me {
         }
     }
 
-    FromKeyModel = (v: KeyModel->v: FormatKeyModel) {
+    FromKeyModel = (v : KeyModel->v : FormatKeyModel) {
         Name = v.Name
         Account = v.Account
         Password = v.Password

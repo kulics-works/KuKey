@@ -14,7 +14,7 @@ KeyGroupModel = $ me {
     [Column("name"), get, set]
     !Name = ""
 
-    . Encrypt = (encryptor: IEncryptService->v: any) {
+    . Encrypt = (encryptor : IEncryptService->v : any) {
         <- KeyGroupModel{
             Id = Id
             Name = encryptor.Encrypt(Name)
@@ -23,7 +23,7 @@ KeyGroupModel = $ me {
         }
     }
     
-    . Decrypt = (encryptor: IEncryptService->v: any, b: bool) {
+    . Decrypt = (encryptor : IEncryptService->v : any, b : bool) {
         name, success = encryptor.Decrypt(Name)
         success ? {
             <- KeyGroupModel{

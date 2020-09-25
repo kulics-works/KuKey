@@ -8,7 +8,7 @@
 
 -- 散列
 -- 使用 SHA512，转成16进制输出
-SHA512Hash = (content: str -> v: str) {
+SHA512Hash = (content : str -> v : str) {
     -> hash = SHA512Managed{} {
         result = hash.ComputeHash(content.to_bytes())
         <- result.to_hex()
@@ -18,8 +18,8 @@ SHA512Hash = (content: str -> v: str) {
 -- 加密
 -- 将key散列，拆成前后两部分用于AES256的key和iv，最后输出base64
 -- AES256，CBC模式，PKCS7填充
-AES256Encrypt = (content: str, key: str -> v: str) {
-    hashKey: array`byte
+AES256Encrypt = (content : str, key : str -> v : str) {
+    hashKey : array`byte
     -> sha = SHA512Managed{} {
         hashKey = sha.ComputeHash(key.to_bytes())
     }
@@ -42,8 +42,8 @@ AES256Encrypt = (content: str, key: str -> v: str) {
 -- 解密
 -- 将key散列，拆成前后两部分用于AES256的key和iv，最后输出base64
 -- AES256，CBC模式，PKCS7填充
-AES256Decrypt = (content: str, key: str -> v: str, success: bool) {
-    hashKey: array`byte
+AES256Decrypt = (content : str, key : str -> v : str, success : bool) {
+    hashKey : array`byte
     -> sha = SHA512Managed{} {
         hashKey = sha.ComputeHash(key.to_bytes())
     }
@@ -74,7 +74,7 @@ Uppercase   = "ABCDEFGHJKLMNPQRSTUVWXYZ"
 Symbol      = "~!@#$%^&*()_-+={}:;<,>.?/\\"
 
 -- 生成密码
-GeneratePasswordByPool = (len: int, pool: str -> v: str) {
+GeneratePasswordByPool = (len : int, pool : str -> v : str) {
     !password = ""
     rand = Random{}
     0 ..< len @ i {

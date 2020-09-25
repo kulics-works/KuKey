@@ -14,26 +14,26 @@
 }
 
 -- 主程序
-DefaultKuKey = (databasePath: str, masterPassword: str->$me) {     -- 使用默认服务
+DefaultKuKey = (databasePath : str, masterPassword : str->$me) {     -- 使用默认服务
     me._DataStoreService = SQLiteDataStoreService(databasePath)
     me._EncryptService = AESEncryptService(masterPassword)
 }
-DefaultKuKey = (dataSrv: IDataStoreService, encryptSrv: IEncryptService->$me) {   -- 使用自定义服务
+DefaultKuKey = (dataSrv : IDataStoreService, encryptSrv : IEncryptService->$me) {   -- 使用自定义服务
     me._DataStoreService = dataSrv
     me._EncryptService = encryptSrv
 }
 DefaultKuKey = $ me {
     . IKuKey
     -- 存储服务
-    _DataStoreService: IDataStoreService
+    _DataStoreService : IDataStoreService
     -- 加密服务
-    _EncryptService: IEncryptService
+    _EncryptService : IEncryptService
     -- 实现接口
-    UpdateEncryptService = (srv: IEncryptService->) {
+    UpdateEncryptService = (srv : IEncryptService->) {
         me._EncryptService = srv
     }
 
-    UpdateEncryptData = (srv: IEncryptService->>) {
+    UpdateEncryptData = (srv : IEncryptService->>) {
         keys = list`KeyModel{}
         keyGroups = list`KeyGroupModel{}
         me._DataStoreService.QueryAsync~>( (ctx>) {
@@ -61,19 +61,19 @@ DefaultKuKey = $ me {
         me._EncryptService = srv
     }
 
-    QueryAsync = (func: (ICoreQueryContext->>) ->>) {
+    QueryAsync = (func : (ICoreQueryContext->>) ->>) {
         me._DataStoreService.QueryAsync~>( (ctx) { 
             func~>(CoreQueryContext(ctx, me._EncryptService))
         })
     }
 
-    SaveAsync = (func: (ICoreSaveContext->>) ->>) {
+    SaveAsync = (func : (ICoreSaveContext->>) ->>) {
         me._DataStoreService.SaveAsync~>( (ctx) { 
             func~>(CoreSaveContext(ctx, me._EncryptService))
         })
     }
 
-    Export = (->>text: str) {
+    Export = (->>text : str) {
         !text = ""
         QueryAsync~>( (ctx>) {
             text = JsonConvert.SerializeObject(KuKeyFormat{
@@ -85,7 +85,7 @@ DefaultKuKey = $ me {
     }
 
     -- 导入
-    _Import = `T:BaseModel (ctx: ICoreSaveContext, item: T ->) {
+    _Import`(T:BaseModel) = (ctx : ICoreSaveContext, item : T ->) {
         data = ctx.Set`T().FirstOrDefault((i){i.Id==item.Id})
         data >< nil ? {
             data.UpdateAt < item.UpdateAt ? {
@@ -97,7 +97,7 @@ DefaultKuKey = $ me {
         }
     }
 
-    Import = (text: str->>) {
+    Import = (text : str->>) {
         SaveAsync~>( (ctx>) {
             source = JsonConvert.DeserializeObject`KuKeyFormat(text)
             -- 逐条导入数据
@@ -110,7 +110,7 @@ DefaultKuKey = $ me {
         })
     }
 
-    FormatExport = (->>text: str) {
+    FormatExport = (->>text : str) {
         !text = ""
         me.QueryAsync~>( (ctx) {
             keys = list`FormatKeyModel{} 
@@ -124,7 +124,7 @@ DefaultKuKey = $ me {
         <- text
     }
 
-    FormatImport = (text: str->>) {
+    FormatImport = (text : str->>) {
         SaveAsync~>( (ctx>) {
             source = JsonConvert.DeserializeObject`OpenFormat(text)
             -- 逐条导入数据
@@ -134,58 +134,58 @@ DefaultKuKey = $ me {
         })
     }
 
-    GeneratePassword = (len: int, number: bool, lower: bool, upper: bool, symbol: bool->v: str) {
+    GeneratePassword = (len : int, number : bool, lower : bool, upper : bool, symbol : bool->v : str) {
         <- me._EncryptService.GeneratePassword(len, number, lower, upper, symbol)
     }
 }
 
 KuKeyFormat = $ {
-    Key:         list`KeyModel
-    KeyGroup:    list`KeyGroupModel
+    Key         : list`KeyModel
+    KeyGroup    : list`KeyGroupModel
     Version = 1
 }
 
 OpenFormat = $ {
     [JsonProperty("key")]
-    Key: list`FormatKeyModel
+    Key : list`FormatKeyModel
     [JsonProperty("version")]
     Version = 1
 }
 
 CoreQueryContext = $ me {
     . ICoreQueryContext
-    _DataContext: IQueryContext
-    _EncryptService: IEncryptService 
+    _DataContext : IQueryContext
+    _EncryptService : IEncryptService 
 
-    Set = `T:BaseModel (-> r: IQueryable`T) {
+    Set`(T:BaseModel) = (-> r : IQueryable`T) {
         <- me._DataContext.Set`T()
     }
 
-    Decrypt = `T:BaseModel (item: T->r: T, b: bool) {
+    Decrypt`(T:BaseModel) = (item : T->r : T, b : bool) {
         r, b = item.Decrypt(me._EncryptService)
         <- r !! T, b
     }
 }
-CoreQueryContext = (ctx: IQueryContext, srv: IEncryptService->$me) {
+CoreQueryContext = (ctx : IQueryContext, srv : IEncryptService->$me) {
     me._DataContext = ctx
     me._EncryptService = srv
 }
 
 CoreSaveContext = $ me {
     . ICoreSaveContext
-    _DataContext: ISaveContext
-    _EncryptService: IEncryptService
+    _DataContext : ISaveContext
+    _EncryptService : IEncryptService
 
-    Set = `T:BaseModel (-> r: IQueryable`T) {
+    Set`(T:BaseModel) = (-> r : IQueryable`T) {
         <- me._DataContext.Set`T()
     }
 
-    Decrypt = `T:BaseModel (item: T->r: T, b: bool) {
+    Decrypt`(T:BaseModel) = (item : T->r : T, b : bool) {
         r, b = item.Decrypt(me._EncryptService)
         <- r !! T, b
     }
 
-    Create = `T:BaseModel (item: T -> id: str) {
+    Create`(T:BaseModel) = (item : T -> id : str) {
         item.Id = Guid.NewGuid().ToString()
         time = (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 !! int
         item.CreateAt = time
@@ -194,17 +194,17 @@ CoreSaveContext = $ me {
         <- item.Id
     }
 
-    Update = `T:BaseModel (item: T ->) {
+    Update`(T:BaseModel) = (item : T ->) {
         time = (DateTime.UtcNow - DateTime(1970, 1, 1)).TotalMilliseconds / 1000 !! int
         item.UpdateAt = time
         me._DataContext.Update(item.Encrypt(me._EncryptService) !! T)
     }
 
-    Delete = `T:BaseModel (item: T ->) {
+    Delete`(T:BaseModel) = (item : T ->) {
         me._DataContext.Delete`T(item)
     }
 }
-CoreSaveContext = (ctx: ISaveContext, srv: IEncryptService->$me) {
+CoreSaveContext = (ctx : ISaveContext, srv : IEncryptService->$me) {
     me._DataContext = ctx
     me._EncryptService = srv
 }
